@@ -2,3 +2,7 @@
 *.o
 */*.mod
 */*.o
+geometry_t.f90
+*/xmlreader
+xmlreader.out
+
