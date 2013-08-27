@@ -1,5 +1,12 @@
 program read_write_driver
 
+  use read_xml_primitives
+  use write_xml_primitives
+  use xmlparse
+  use xml_data_geometry_t
+
+  implicit none
+
   character(len=50) :: mode
 
   call get_command_argument(1, mode)
@@ -17,8 +24,6 @@ program read_write_driver
   contains
 
     subroutine read_write_geometry()
-
-      use xml_data_geometry_t
       integer :: tstart, tend, trate
 
       call system_clock(tstart, trate)
@@ -26,7 +31,7 @@ program read_write_driver
       call system_clock(tend)
       print *, 'read_xml_file_geometry_t completed in (seconds):', &
         dble(tend-tstart)/trate
-      call write_xml_file_geometry_t('geometry_driver_output.xml')
+      !call write_xml_file_geometry_t('geometry_driver_output.xml')
 
     end subroutine read_write_geometry
 
