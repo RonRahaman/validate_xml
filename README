@@ -1,1 +1,3 @@
 This repo is a test environment for developing and validating improvements to the xml-fortran library for use in OpenMC.
+
+v0/ contains xml-fortran from 'develop' branch of OpenMC
