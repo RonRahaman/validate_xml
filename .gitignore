@@ -8,5 +8,6 @@ xmlreader.out
 *.swp
 */read_write_driver
 */*/xmlreader
-*/geometry_driver_output.xml
+*/*_validation.xml
 */tags
+*/*.dSYM
