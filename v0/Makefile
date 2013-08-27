@@ -7,9 +7,9 @@ xml_data_geometry_t.o: geometry_t.f90 xml-fortran/xmlreader
 	$(F90) $(F90FLAGS) -I xml-fortran -c $< -o $@
 
 geometry_t.f90: xml-fortran/xmlreader geometry_t.xml
-	xml-fortran/xmlreader geometry_t
+	$< geometry_t
 
-xml-fortran/xmlreader:
+xml-fortran/xmlreader: xml-fortran/Makefile
 	cd xml-fortran; make F90=$(F90) F90FLAGS="$(F90FLAGS)"
 
 clean:
