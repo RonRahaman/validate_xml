@@ -1,3 +1,7 @@
 This repo is a test environment for developing and validating improvements to the xml-fortran library for use in OpenMC.
 
 v0/ contains xml-fortran from 'develop' branch of OpenMC
+
+v1/ contains xml-fortran from xml_array_resize branch of Ron's OpenMC fork (optimized memory allocation for number of elements)
+
+v2/ contains optimizations for size of elements
