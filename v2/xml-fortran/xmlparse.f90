@@ -52,7 +52,8 @@ implicit none
 !integer, parameter :: XML_BUFFER_LENGTH = 10000
 
 integer, parameter :: EOR_CODE = -2   !READ() from iso_varying_string returns
-!  EOR_CODE after reading a record
+                                      !EOR_CODE after reading a record
+integer, parameter :: EOF_CODE = -1
 
 !===============================================================================
 ! XML_PARSE defines the data type that holds the parser information
@@ -435,13 +436,14 @@ do while ( kend <= 0 )
   endif
   kend = index( info%line, '>' )
 enddo
-if ( kend > kspace ) then
+
+if ( kspace /= 0 .and. kend > kspace ) then
   kend = kspace
 else if ( extract(info%line, 1, 4) == '<!--' .and. kcend > 0) then
-kend = kcend-1
-   else
-     close_bracket = .true.
-   endif
+  kend = kcend-1
+else
+ close_bracket = .true.
+endif
 
    !
    ! Check for the end of an ordianry tag and of
@@ -582,16 +584,17 @@ kend = kcend-1
        call xml_remove_tabs_(info%line)
        info%lineno = info%lineno + 1
 
-       !if ( ierr < 0 ) then
-       !   call xml_report_details( 'XML_GET - end of file found - LU-number: ', &
-       !           info%lun )
-       !   info%eof = .true.
+       if ( ierr == EOF_CODE ) then
+          call xml_report_details( 'XML_GET - end of file found - LU-number: ', &
+                  info%lun )
+          info%eof = .true.
+       endif
        !elseif ( ierr > 0 ) then
        !   call xml_report_errors( 'XML_GET - error reading file with LU-number ', &
        !           info%lun, info%lineno  )
        !   info%error = .true.
        !endif
-       !if ( ierr /= 0 ) then
+       !if ( ierr /= 0 .or. ierr /= EOR_CODE ) then
        !   exit
        !endif
      endif
