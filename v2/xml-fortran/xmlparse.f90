@@ -42,11 +42,17 @@
 !   - simple checking via a table: parent, tag, id, min, max
 !===============================================================================
 
+
 module xmlparse
+
+  use iso_varying_string
 
    implicit none
 
-   integer, parameter :: XML_BUFFER_LENGTH = 10000
+   !integer, parameter :: XML_BUFFER_LENGTH = 10000
+
+   integer, parameter :: EOR_CODE = -2   !READ() from iso_varying_string returns
+                                         !  EOR_CODE after reading a record
 
 !===============================================================================
 ! XML_PARSE defines the data type that holds the parser information
@@ -62,7 +68,8 @@ module xmlparse
       logical          :: too_many_data      ! More lines of data than could be stored?
       logical          :: eof                ! End of file?
       logical          :: error              ! Invalid XML file or other error?
-      character(len=XML_BUFFER_LENGTH) :: line  ! Buffer
+      type(varying_string) :: line           ! Buffer
+      !old! character(len=XML_BUFFER_LENGTH) :: line  ! Buffer
    end type XML_PARSE
 
 !===============================================================================
@@ -291,13 +298,15 @@ subroutine xml_open( info, fname, mustread )
    if ( .not. info%error .and. mustread ) then
       k = 1
       do while ( k >= 1 )
-         read( info%lun, '(a)', iostat = ierr ) info%line
+         call get(info%lun, info%line, iostat = ierr)
+         !old! read( info%lun, '(a)', iostat = ierr ) info%line
 
          ! If we encounter a blank line, skip it and read the next line
          if (len_trim(info%line) == 0) cycle
 
          call xml_remove_tabs_(info%line)
-         if ( ierr == 0 ) then
+         if (ierr == 0 || ierr == EOR_CODE) then
+         !old! if ( ierr == 0 ) then
             info%line = adjustl(  info%line )
             k         = index( info%line, '<?' )
             !
@@ -380,7 +389,8 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
    integer         :: ierr
    logical         :: close_bracket
    logical         :: comment_tag
-   character(len=XML_BUFFER_LENGTH) :: nextline
+   type(varying_string) :: nextline
+   !old! character(len=XML_BUFFER_LENGTH) :: nextline
 
    !
    ! Initialise the output
@@ -408,11 +418,13 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
    kend          = index( info%line, '>' )
    kcend         = index( info%line, '-->' )
    do while ( kend <= 0 )
-      read( info%lun, '(a)', iostat = ierr ) nextline
+      call get(info%lun, nextline, iostat = ierr )
+      !old! read( info%lun, '(a)', iostat = ierr ) nextline
       call xml_remove_tabs_(nextline)
       info%lineno = info%lineno + 1
 
-      if ( ierr == 0 ) then
+      if ( ierr == 0 || ierr == EOR_CODE ) then
+      !old! if ( ierr == 0 ) then
          info%line = trim(info%line) // ' ' // adjustl(nextline)
       else
          info%error = .true.
@@ -425,7 +437,7 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
    enddo
    if ( kend > kspace ) then
       kend = kspace
-   else if (info%line(1:4) == '<!--' .and. kcend > 0) then
+   else if ( extract(info%line, 1, 4) == '<!--' .and. kcend > 0) then
       kend = kcend-1
    else
       close_bracket = .true.
@@ -435,22 +447,22 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
    ! Check for the end of an ordianry tag and of
    ! a comment tag
    !
-   if ( info%line(1:3) == '-->' ) then
+   if ( extract(info%line, 1,3) == '-->' ) then
       endtag = .true.
-      tag    = info%line(4:kend-1)
-   else if ( info%line(1:2) == '</' ) then
+      tag    = extract(info%line, 4, kend-1) 
+   else if ( extract(info%line, 1, 2) == '</' ) then
       endtag = .true.
-      tag    = info%line(3:kend-1)
+      tag    = extract(info%line, 3, kend-1) 
    else
-      if ( info%line(1:1) == '<' ) then
-         tag    = info%line(2:kend-1)
+      if ( extract(info%line, 1, 1) == '<' ) then
+         tag    = extract(info%line, 2, kend-1) 
          call xml_report_details( 'XML_GET - tag found: ', trim(tag) )
       else
          kend   = 0 ! Beginning of data!
       endif
    endif
 
-   info%line = adjustl( info%line(kend+1:) )
+   info%line = adjustl( extract(info%line, kend+1) )
 
    idxat     = 0
    idxdat    = 0
@@ -485,7 +497,7 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
             endif
          endif
          if ( kend >= 1 ) then
-            info%line = adjustl( info%line(kend+1:) )
+            info%line = adjustl( extract(info%line(kend+1) )
          endif
          exit
       endif
@@ -493,9 +505,9 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
       idxat = idxat + 1
       if ( idxat <= size(attribs,2) ) then
          no_attribs = idxat
-         attribs(1,idxat) = adjustl(info%line(1:keq-1)) ! Use adjustl() to avoid
+         attribs(1,idxat) = adjustl(extact(info%line, 1, keq-1) ) ! Use adjustl() to avoid
                                                         ! multiple spaces, etc
-         info%line = adjustl( info%line(keq+1:) )
+         info%line = adjustl( extact(info%line, keq+1) )
 
          !
          ! We have almost found the start of the attribute's value
@@ -509,7 +521,7 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
             return
          endif
 
-         ksecond = index( info%line(kfirst+1:), '"' ) + kfirst
+         ksecond = index( extract(info%line, kfirst+1) ,  '"' ) + kfirst
          if ( ksecond < 1 ) then
             call xml_report_errors( 'XML_GET - malformed attribute-value pair: ', &
                     trim(info%line), info%lineno  )
@@ -518,8 +530,8 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
             return
          endif
 
-         attribs(2,idxat) = info%line(kfirst+1:ksecond-1)
-         info%line = adjustl( info%line(ksecond+1:) )
+         attribs(2,idxat) = extract(info%line, kfirst+1, ksecond-1) 
+         info%line = adjustl( extract(info%line, ksecond+1) )
       endif
 
       if ( idxat > size(attribs,2) ) then
@@ -548,8 +560,8 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
       if ( idxdat <= size(data) ) then
          no_data = idxdat
          if ( kend >= 1 ) then
-            data(idxdat) = info%line(1:kend-1)
-            info%line    = info%line(kend:)
+            data(idxdat) = extract(info%line, 1, kend-1) 
+            info%line    = extract(info%line, kend) 
          else
             data(idxdat) = info%line
          endif
@@ -566,22 +578,22 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
       if ( kend >= 1 ) then
          exit
       else
-         read( info%lun, '(a)', iostat = ierr ) info%line
+         get(info%lun, info%line, iostat = ierr)
          call xml_remove_tabs_(info%line)
          info%lineno = info%lineno + 1
 
-         if ( ierr < 0 ) then
-            call xml_report_details( 'XML_GET - end of file found - LU-number: ', &
-                    info%lun )
-            info%eof = .true.
-         elseif ( ierr > 0 ) then
-            call xml_report_errors( 'XML_GET - error reading file with LU-number ', &
-                    info%lun, info%lineno  )
-            info%error = .true.
-         endif
-         if ( ierr /= 0 ) then
-            exit
-         endif
+         !if ( ierr < 0 ) then
+         !   call xml_report_details( 'XML_GET - end of file found - LU-number: ', &
+         !           info%lun )
+         !   info%eof = .true.
+         !elseif ( ierr > 0 ) then
+         !   call xml_report_errors( 'XML_GET - error reading file with LU-number ', &
+         !           info%lun, info%lineno  )
+         !   info%error = .true.
+         !endif
+         !if ( ierr /= 0 ) then
+         !   exit
+         !endif
       endif
    enddo
 
@@ -1061,13 +1073,16 @@ end subroutine xml_process
 !===============================================================================
 
 subroutine xml_remove_tabs_(line)
-  character(len=*), intent(inout) :: line
+  type(iso_varying_string), intent(inout) :: line
+  !old! character(len=*), intent(inout) :: line
 
   integer :: i
 
   do i = 1, len_trim(line)
-     if (line(i:i) == achar(9)) then
-        line(i:i) = ' '
+     if (extract(line,i,i) == achar(9)) then
+     !old! if (line(i:i) == achar(9)) then
+        replace(line, i, i, ' ')
+        !old! line(i:i) = ' '
      end if
   end do
 
