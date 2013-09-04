@@ -11,3 +11,4 @@ xmlreader.out
 */*_validation.xml
 */tags
 */*.dSYM
+*.xml
