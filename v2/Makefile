@@ -12,13 +12,13 @@ xml_data_tallies_t.o: tallies_t.f90 $(xml_fortran_objects)
 	$(F90) $(F90FLAGS) -I xml-fortran -c $< -o $@
 
 #tallies_t.f90: xml-fortran/xmlreader tallies_t.xml
-	#$< tallies_t
+#$< tallies_t
 
 xml_data_materials_t.o: materials_t.f90 $(xml_fortran_objects)
 	$(F90) $(F90FLAGS) -I xml-fortran -c $< -o $@
 
 #materials_t.f90: xml-fortran/xmlreader materials_t.xml
-	#$< materials_t
+#$< materials_t
 
 xml-fortran/xmlreader $(xml_fortran_objects): xml-fortran/Makefile
 	cd xml-fortran; make F90=$(F90) F90FLAGS="$(F90FLAGS)"

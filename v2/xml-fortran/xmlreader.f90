@@ -12,61 +12,61 @@
 !===============================================================================
 
 program xmlreader
-   use XMLPARSE
-   implicit none
+use XMLPARSE
+implicit none
 
-   character(len=60)                      :: fname
-   type(XML_PARSE)                        :: info
+character(len=60)                      :: fname
+type(XML_PARSE)                        :: info
 
-   character(len=80)                      :: tag
-   character(len=80)                      :: starttag
-   logical                                :: endtag
-   character(len=80), dimension(1:2,1:20) :: attribs
-   integer                                :: noattribs
-   character(len=1000), dimension(1:1000)  :: data
-   integer                                :: nodata
-   integer                                :: i
-   integer                                :: j
-   integer, parameter                     :: notmps = 6 ! Number of temporary files needed!
-   integer                                :: ludef
-   integer                                :: ludeflt
-   integer                                :: luinit
-   integer                                :: lusubs
-   integer                                :: luprolog
-   integer                                :: lustart
-   integer                                :: luloop
-   integer                                :: luend
-   integer                                :: lumain
-   integer                                :: luwrite
-   integer                                :: luwritp
-   integer                                :: luwrv
-   integer                                :: argc
-   logical                                :: prolog_written
-   logical                                :: comp
-   logical                                :: error
-   logical                                :: begin_loop = .true.
-   logical                                :: begin_main_loop = .true.
-   logical                                :: begin_component = .false.
-   logical                                :: strict
-   logical                                :: global_type
-   logical                                :: dyn_strings
+character(len=80)                      :: tag
+character(len=80)                      :: starttag
+logical                                :: endtag
+character(len=80), dimension(1:2,1:20) :: attribs
+integer                                :: noattribs
+character(len=1000), dimension(1:1000)  :: data
+integer                                :: nodata
+integer                                :: i
+integer                                :: j
+integer, parameter                     :: notmps = 6 ! Number of temporary files needed!
+integer                                :: ludef
+integer                                :: ludeflt
+integer                                :: luinit
+integer                                :: lusubs
+integer                                :: luprolog
+integer                                :: lustart
+integer                                :: luloop
+integer                                :: luend
+integer                                :: lumain
+integer                                :: luwrite
+integer                                :: luwritp
+integer                                :: luwrv
+integer                                :: argc
+logical                                :: prolog_written
+logical                                :: comp
+logical                                :: error
+logical                                :: begin_loop = .true.
+logical                                :: begin_main_loop = .true.
+logical                                :: begin_component = .false.
+logical                                :: strict
+logical                                :: global_type
+logical                                :: dyn_strings
 
-   character(len=32)                      :: root_name
-   character(len=32)                      :: global_name
-   character(len=32)                      :: typename
-   character(len=32), dimension(1:20)     :: placeholder
-   integer                                :: no_placeholders
+character(len=32)                      :: root_name
+character(len=32)                      :: global_name
+character(len=32)                      :: typename
+character(len=32), dimension(1:20)     :: placeholder
+integer                                :: no_placeholders
 
-   character(len=50)                      :: declare
-   character(len=50), dimension(:,:), pointer :: types
-   character(len=50), dimension(:,:), pointer :: new_types
-   
-   ! TODO: arrays of integers etc, in addition to integer-arrays - see: word
-   integer, parameter                     :: notypes_predefined = 27
-   character(len=50), dimension(1:4,1:notypes_predefined) &
-                                          :: predefined_types
-   integer                                :: notypes = notypes_predefined
-   data ((predefined_types(i,j) , i=1,4), j=1,notypes_predefined ) / &
+character(len=50)                      :: declare
+character(len=50), dimension(:,:), pointer :: types
+character(len=50), dimension(:,:), pointer :: new_types
+
+! TODO: arrays of integers etc, in addition to integer-arrays - see: word
+integer, parameter                     :: notypes_predefined = 27
+character(len=50), dimension(1:4,1:notypes_predefined) &
+:: predefined_types
+integer                                :: notypes = notypes_predefined
+data ((predefined_types(i,j) , i=1,4), j=1,notypes_predefined ) / &
 'logical'       ,'   logical'                        , 'read_xml_logical',       'write_to_xml_logical', &
 'logical-1dim'  ,'   logical, dimension(:), pointer' , 'read_xml_logical_1dim',  'write_to_xml_logical_1dim',  &
 'logical-array' ,'   logical, dimension(:), pointer' , 'read_xml_logical_array', 'write_to_xml_logical_array', &
@@ -81,11 +81,11 @@ program xmlreader
 'real-shape'    ,'   real, dimension(SHAPE)'         , 'read_xml_real_array',    'write_to_xml_real_array', &
 'double'        ,'   real(kind=kind(1.0d0))'         , 'read_xml_double',        'write_to_xml_double',  &
 'double-1dim'   ,'   real(kind=kind(1.0d0)), dimension(:), pointer' , &
-                                                       'read_xml_double_1dim',   'write_to_xml_double_1dim', &
+'read_xml_double_1dim',   'write_to_xml_double_1dim', &
 'double-array'  ,'   real(kind=kind(1.0d0)), dimension(:), pointer' , &
-                                                       'read_xml_double_array',  'write_to_xml_double_array', &
+'read_xml_double_array',  'write_to_xml_double_array', &
 'double-shape'  ,'   real(kind=kind(1.0d0)), dimension(SHAPE)'      , &
-                                                       'read_xml_double_array',  'write_to_xml_double_array', &
+'read_xml_double_array',  'write_to_xml_double_array', &
 'word'          ,'   character(len=?)'               , 'read_xml_word',          'write_to_xml_word',    &
 'word-1dim'     ,'   character(len=?), dimension(:), pointer' , 'read_xml_word_1dim',  'write_to_xml_word_1dim',  &
 'word-array'    ,'   character(len=?), dimension(:), pointer' , 'read_xml_word_array', 'write_to_xml_word_array', &
@@ -98,233 +98,233 @@ program xmlreader
 'character-array','   character(len=?), dimension(:), pointer' , 'read_xml_line_array', 'write_to_xml_line_array', &
 'character-shape','   character(len=?), dimension(SHAPE)'      , 'read_xml_line_array', 'write_to_xml_line_array' /
 
-   allocate( types(1:4,1:notypes) )
-   types = predefined_types(:,1:notypes)
+allocate( types(1:4,1:notypes) )
+types = predefined_types(:,1:notypes)
 
-   !
-   ! Read the global options file, if present
-   !
-   strict      = .false.
-   global_type = .false.
-   dyn_strings = .true.
-   call get_global_options( attribs, noattribs, strict, global_type, global_name, &
-                            root_name, dyn_strings )
+!
+! Read the global options file, if present
+!
+strict      = .false.
+global_type = .false.
+dyn_strings = .true.
+call get_global_options( attribs, noattribs, strict, global_type, global_name, &
+root_name, dyn_strings )
 
-   !
-   ! Open the input file and read the name of the template.
-   ! Load the template into a tree and then generate it all
-   ! in stages
-   !
-   argc = COMMAND_ARGUMENT_COUNT()
-   if (argc > 0) then
-      call GET_COMMAND_ARGUMENT(1, fname)
-   else
-      open(UNIT=10, FILE='xmlreader.inp')
-      read(UNIT=10, FMT='(a)') fname
-      close(UNIT=10)
-   end if
+!
+! Open the input file and read the name of the template.
+! Load the template into a tree and then generate it all
+! in stages
+!
+argc = COMMAND_ARGUMENT_COUNT()
+if (argc > 0) then
+  call GET_COMMAND_ARGUMENT(1, fname)
+else
+  open(UNIT=10, FILE='xmlreader.inp')
+  read(UNIT=10, FMT='(a)') fname
+  close(UNIT=10)
+end if
 
-   open( 20, file = 'xmlreader.out' )
-   call xml_options( info, report_lun = 20, report_details = .true. )
+open( 20, file = 'xmlreader.out' )
+call xml_options( info, report_lun = 20, report_details = .true. )
 
-   prolog_written = .false.
-   !
-   ! Set the defaults
-   !
-   global_type = .false.
-   global_name = fname
-   root_name   = fname
+prolog_written = .false.
+!
+! Set the defaults
+!
+global_type = .false.
+global_name = fname
+root_name   = fname
 
-   ludef    = 21
-   lusubs   = 22
-   luinit   = 23
-   luwritp  = 24
-   luwrv    = luwritp
+ludef    = 21
+lusubs   = 22
+luinit   = 23
+luwritp  = 24
+luwrv    = luwritp
 
-   open( ludef,   file = trim(fname)//'.f90' )
-   open( lusubs,  status = 'scratch' )
-   open( luinit,  status = 'scratch' )
-   open( luwritp, status = 'scratch' )
+open( ludef,   file = trim(fname)//'.f90' )
+open( lusubs,  status = 'scratch' )
+open( luinit,  status = 'scratch' )
+open( luwritp, status = 'scratch' )
 
-   write( ludef, '(a)' ) '!!!! WRITE LUDEF, main'
-   write( lusubs, '(a)') '!!!! WRITE LUSUBS, main'
-   write( luinit, '(a)') '!!!! WRITE LUINIT, main'
-   write( luwritp, '(a)') '!!!! WRITE LUWRITP, main'
-   write( luwrv, '(a)') '!!!! WRITE LUWRV, main'
+write( ludef, '(a)' ) '!!!! WRITE LUDEF, main'
+write( lusubs, '(a)') '!!!! WRITE LUSUBS, main'
+write( luinit, '(a)') '!!!! WRITE LUINIT, main'
+write( luwritp, '(a)') '!!!! WRITE LUWRITP, main'
+write( luwrv, '(a)') '!!!! WRITE LUWRV, main'
 
-   call open_tmp_files( 31 )
+call open_tmp_files( 31 )
 
-   lumain   = luloop
+lumain   = luloop
 
-   write( lumain, '(a)') '!!!! WRITE LUMAIN, main'
+write( lumain, '(a)') '!!!! WRITE LUMAIN, main'
 
-   ! Read the template file and act as we go along:
-   ! - write the declarations
-   ! - write the main reading routine
-   ! - write the individual reading routines
-   ! - the root element is needed because of the definition of XML files,
-   !   but we ignore it.
-   !
-   call xml_open( info, trim(fname)//'.xml', .true. )
+! Read the template file and act as we go along:
+! - write the declarations
+! - write the main reading routine
+! - write the individual reading routines
+! - the root element is needed because of the definition of XML files,
+!   but we ignore it.
+!
+call xml_open( info, trim(fname)//'.xml', .true. )
 
-   error = .false.
-   comp  = .false.
-   no_placeholders = 0
+error = .false.
+comp  = .false.
+no_placeholders = 0
 
-   call xml_get( info, starttag, endtag, attribs, noattribs, data, nodata )
+call xml_get( info, starttag, endtag, attribs, noattribs, data, nodata )
 
-   do
-      call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )
-      write(20,*) 'tag: ',tag
-      write(20,*) 'attribs: ',noattribs
-      if ( noattribs > 0 ) then
-         write(20,'(4a)') ( '   ', trim(attribs(1,i)), ' = ', trim(attribs(2,i)), i=1,noattribs )
-      endif
-      write(20,*) 'data: ',nodata
-      if ( nodata > 0 ) then
-         write(20,'(3a)') ( '   >', trim(data(i)), '<', i=1,nodata )
-      endif
-      if ( xml_error(info) ) then
-         write(*,*) 'Error reading template file!'
-         !stop
-         exit
-      endif
+do
+  call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )
+  write(20,*) 'tag: ',tag
+  write(20,*) 'attribs: ',noattribs
+  if ( noattribs > 0 ) then
+    write(20,'(4a)') ( '   ', trim(attribs(1,i)), ' = ', trim(attribs(2,i)), i=1,noattribs )
+  endif
+  write(20,*) 'data: ',nodata
+  if ( nodata > 0 ) then
+    write(20,'(3a)') ( '   >', trim(data(i)), '<', i=1,nodata )
+  endif
+  if ( xml_error(info) ) then
+    write(*,*) 'Error reading template file!'
+    !stop
+    exit
+  endif
 
+  !
+  ! When encountering the endtag, then close the
+  ! current definition
+  !
+  if ( endtag .and. noattribs == 0 ) then
+    select case ( tag )
+    case ( 'typedef' )
+      call close_typedef( begin_component )
+    case ( 'placeholder' )
+      !if ( comp ) then
+      !   call close_placeholder
+      !endif
+      !comp = .false.
+      call close_placeholder
+      luwrv = luwritp
+    case default
       !
-      ! When encountering the endtag, then close the
-      ! current definition
+      ! Have we found the end of the definition?
       !
-      if ( endtag .and. noattribs == 0 ) then
-         select case ( tag )
-         case ( 'typedef' )
-            call close_typedef( begin_component )
-         case ( 'placeholder' )
-           !if ( comp ) then
-           !   call close_placeholder
-           !endif
-           !comp = .false.
-            call close_placeholder
-            luwrv = luwritp
-         case default
-            !
-            ! Have we found the end of the definition?
-            !
-            if ( tag == starttag ) then
-               exit
-            endif
-         end select
-
-         if ( xml_ok(info) ) then
-            cycle
-         else
-            exit
-         endif
-
+      if ( tag == starttag ) then
+        exit
       endif
+    end select
 
-      !
-      ! Opening tags: dispatch on the actual tag
-      !
-      select case( tag )
-      case( 'options' )
-         call set_options( attribs, noattribs, strict, global_type, &
-                           global_name, root_name, dyn_strings )
-         if ( .not. prolog_written ) then
-             prolog_written = .true.
-             call write_prolog
-         else
-             write(20,*) 'Options element should be the first child of the root element',&
-                         'Otherwise it has no effect!'
-         endif
+    if ( xml_ok(info) ) then
+      cycle
+    else
+      exit
+    endif
 
-         if ( strict ) then
-            write( lumain, '(a)' ) '   strict_ = .true.'
-         else
-            write( lumain, '(a)' ) '   strict_ = .false.'
-         endif
+  endif
 
-      case( 'comment', '!--' )
-         ! Do nothing
+  !
+  ! Opening tags: dispatch on the actual tag
+  !
+  select case( tag )
+  case( 'options' )
+    call set_options( attribs, noattribs, strict, global_type, &
+    global_name, root_name, dyn_strings )
+    if ( .not. prolog_written ) then
+      prolog_written = .true.
+      call write_prolog
+    else
+      write(20,*) 'Options element should be the first child of the root element',&
+      'Otherwise it has no effect!'
+    endif
 
-      case( 'placeholder' )
-         if ( .not. prolog_written ) then
-             prolog_written = .true.
-             call write_prolog
-         endif
-         if ( begin_loop .or. begin_main_loop ) then
-            begin_main_loop = .false.
-            call add_begin_loop( .true., .false. )
-         endif
-         call add_placeholder(dyn_strings)
-         begin_component = .false.
-         luwrv = luwrite
+    if ( strict ) then
+      write( lumain, '(a)' ) '   strict_ = .true.'
+    else
+      write( lumain, '(a)' ) '   strict_ = .false.'
+    endif
 
-      case( 'typedef' )
-         if ( .not. prolog_written ) then
-             prolog_written = .true.
-             call write_prolog
-         endif
-         call add_typedef(dyn_strings)
+  case( 'comment', '!--' )
+    ! Do nothing
 
-      case( 'variable' )
-         if ( .not. prolog_written ) then
-             prolog_written = .true.
-             call write_prolog
-         endif
-         if ( begin_loop .or. begin_main_loop ) then
-            begin_main_loop = .false.
-            call add_begin_loop( .true., begin_component )
-         endif
-         call add_variable( component=comp )
+  case( 'placeholder' )
+    if ( .not. prolog_written ) then
+      prolog_written = .true.
+      call write_prolog
+    endif
+    if ( begin_loop .or. begin_main_loop ) then
+      begin_main_loop = .false.
+      call add_begin_loop( .true., .false. )
+    endif
+    call add_placeholder(dyn_strings)
+    begin_component = .false.
+    luwrv = luwrite
 
-      case( 'component' )
-         !
-         ! Components of derived types are treated in much the
-         ! same way as ordinary variables - with one syntactic
-         ! difference
-         !
-         if ( .not. prolog_written ) then
-             prolog_written = .true.
-             call write_prolog
-         endif
-         if ( begin_loop ) then
-            call add_begin_loop( .true., .true. )
-         endif
-         call add_variable( component=.true. )
-         begin_component = .true.
+  case( 'typedef' )
+    if ( .not. prolog_written ) then
+      prolog_written = .true.
+      call write_prolog
+    endif
+    call add_typedef(dyn_strings)
 
-      case default
-      !   write(20,*) 'Unknown tag: ',trim(tag)
-      !   write(20,*) '-- terminating the program!'
-      !   stop
-      end select
-   end do
+  case( 'variable' )
+    if ( .not. prolog_written ) then
+      prolog_written = .true.
+      call write_prolog
+    endif
+    if ( begin_loop .or. begin_main_loop ) then
+      begin_main_loop = .false.
+      call add_begin_loop( .true., begin_component )
+    endif
+    call add_variable( component=comp )
 
-   !
-   ! Now finish it all
-   !
-   write( luend, '(a)' ) &
-      & '   if ( present(errout) ) errout = error', &
-      & '   call xml_close(info)', &
-      & 'end subroutine', &
-      & ' '
-   write( luwritp, '(a)' ) &
-      & '   write(info%lun,''(a)'') ''</' // trim(root_name) // '>''', &
-      & '   call xml_close(info)', &
-      & 'end subroutine', &
-      & ' '
+  case( 'component' )
+    !
+    ! Components of derived types are treated in much the
+    ! same way as ordinary variables - with one syntactic
+    ! difference
+    !
+    if ( .not. prolog_written ) then
+      prolog_written = .true.
+      call write_prolog
+    endif
+    if ( begin_loop ) then
+      call add_begin_loop( .true., .true. )
+    endif
+    call add_variable( component=.true. )
+    begin_component = .true.
 
-   call append_files( luprolog )
-   call merge_files
+  case default
+    !   write(20,*) 'Unknown tag: ',trim(tag)
+    !   write(20,*) '-- terminating the program!'
+    !   stop
+  end select
+end do
 
-   write( ludef, '(/,a)' ) &
-      & 'end subroutine', &
-      & 'end module'
+!
+! Now finish it all
+!
+write( luend, '(a)' ) &
+& '   if ( present(errout) ) errout = error', &
+& '   call xml_close(info)', &
+& 'end subroutine', &
+& ' '
+write( luwritp, '(a)' ) &
+& '   write(info%lun,''(a)'') ''</' // trim(root_name) // '>''', &
+& '   call xml_close(info)', &
+& 'end subroutine', &
+& ' '
 
-   if ( error ) then
-       write(*,*) 'Errors found in the definition - please check!'
-   endif
-   stop
+call append_files( luprolog )
+call merge_files
+
+write( ludef, '(/,a)' ) &
+& 'end subroutine', &
+& 'end module'
+
+if ( error ) then
+  write(*,*) 'Errors found in the definition - please check!'
+endif
+stop
 contains
 
 !===============================================================================
@@ -339,34 +339,34 @@ contains
 !===============================================================================
 
 subroutine get_global_options( attribs, noattribs, strict, global_type, global_name, &
-                               root_name, dyn_strings )
-   character(len=*), dimension(:,:), intent(inout) :: attribs
-   integer, intent(inout)                          :: noattribs
-   logical, intent(inout)                          :: strict
-   logical, intent(inout)                          :: global_type
-   character(len=*), intent(inout)                 :: global_name
-   character(len=*), intent(inout)                 :: root_name
-   logical, intent(inout)                          :: dyn_strings
+root_name, dyn_strings )
+character(len=*), dimension(:,:), intent(inout) :: attribs
+integer, intent(inout)                          :: noattribs
+logical, intent(inout)                          :: strict
+logical, intent(inout)                          :: global_type
+character(len=*), intent(inout)                 :: global_name
+character(len=*), intent(inout)                 :: root_name
+logical, intent(inout)                          :: dyn_strings
 
-   character(len=20)                               :: tag
-   character(len=20), dimension(1)                 :: data
-   integer                                         :: nodata
-   logical                                         :: exists
-   logical                                         :: endtag
-   type(XML_PARSE)                                 :: info
+character(len=20)                               :: tag
+character(len=20), dimension(1)                 :: data
+integer                                         :: nodata
+logical                                         :: exists
+logical                                         :: endtag
+type(XML_PARSE)                                 :: info
 
-   inquire( file = 'xmlreader.conf', exist = exists )
-   if ( exists ) then
-       call xml_open( info, 'xmlreader.conf', .true. )
-       do while ( xml_ok(info) )
-          call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )
-          if ( tag == 'xmlreader' ) then
-              call set_options( attribs, noattribs, strict, global_type, &
-                                global_name, root_name, dyn_strings )
-          endif
-       enddo
-       call xml_close( info )
-   endif
+inquire( file = 'xmlreader.conf', exist = exists )
+if ( exists ) then
+  call xml_open( info, 'xmlreader.conf', .true. )
+  do while ( xml_ok(info) )
+    call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )
+    if ( tag == 'xmlreader' ) then
+      call set_options( attribs, noattribs, strict, global_type, &
+      global_name, root_name, dyn_strings )
+    endif
+  enddo
+  call xml_close( info )
+endif
 end subroutine get_global_options
 
 !===============================================================================
@@ -383,44 +383,44 @@ end subroutine get_global_options
 !===============================================================================
 
 subroutine set_options( attribs, noattribs, strict, global_type, global_name, root_name, dyn_strings )
-   character(len=*), dimension(:,:), intent(in) :: attribs
-   integer, intent(in)                          :: noattribs
-   logical, intent(inout)                       :: strict
-   logical, intent(inout)                       :: global_type
-   character(len=*), intent(inout)              :: global_name
-   character(len=*), intent(inout)              :: root_name
-   logical, intent(inout)                       :: dyn_strings
+character(len=*), dimension(:,:), intent(in) :: attribs
+integer, intent(in)                          :: noattribs
+logical, intent(inout)                       :: strict
+logical, intent(inout)                       :: global_type
+character(len=*), intent(inout)              :: global_name
+character(len=*), intent(inout)              :: root_name
+logical, intent(inout)                       :: dyn_strings
 
-   integer :: i
+integer :: i
 
-   do i = 1,noattribs
-      select case (attribs(1,i))
-      case ('strict')
-         if ( attribs(2,i) == 'yes' ) then
-            strict = .true.
-         else
-            strict = .false.
-         endif
-      case ('globaltype')
-         if ( attribs(2,i) == 'yes' ) then
-            global_type = .true.
-         else
-            global_type = .false.
-         endif
-      case ('globalname')
-         global_name = attribs(2,i)
-      case ('rootname')
-         root_name = attribs(2,i)
-      case ('dynamicstrings')
-         if ( attribs(2,i) == 'yes' ) then
-            dyn_strings = .true.
-         else
-            dyn_strings = .false.
-         endif
-      case default
-         write(20,*) 'Unknown option: ',trim(attribs(1,i)), ' - ignored'
-      end select
-   enddo
+do i = 1,noattribs
+  select case (attribs(1,i))
+  case ('strict')
+    if ( attribs(2,i) == 'yes' ) then
+      strict = .true.
+    else
+      strict = .false.
+    endif
+  case ('globaltype')
+    if ( attribs(2,i) == 'yes' ) then
+      global_type = .true.
+    else
+      global_type = .false.
+    endif
+  case ('globalname')
+    global_name = attribs(2,i)
+  case ('rootname')
+    root_name = attribs(2,i)
+  case ('dynamicstrings')
+    if ( attribs(2,i) == 'yes' ) then
+      dyn_strings = .true.
+    else
+      dyn_strings = .false.
+    endif
+  case default
+    write(20,*) 'Unknown option: ',trim(attribs(1,i)), ' - ignored'
+  end select
+enddo
 end subroutine set_options
 
 !===============================================================================
@@ -431,28 +431,28 @@ end subroutine set_options
 !===============================================================================
 
 subroutine open_tmp_files( lufirst )
-   integer, intent(in) :: lufirst
+integer, intent(in) :: lufirst
 
-   luprolog = lufirst
-   lustart  = lufirst + 1
-   luloop   = lufirst + 2
-   luend    = lufirst + 3
-   ludeflt  = lufirst + 4
-   luwrite  = lufirst + 5
+luprolog = lufirst
+lustart  = lufirst + 1
+luloop   = lufirst + 2
+luend    = lufirst + 3
+ludeflt  = lufirst + 4
+luwrite  = lufirst + 5
 
-   open( luprolog, status = 'scratch' )
-   open( lustart,  status = 'scratch' )
-   open( luloop,   status = 'scratch' )
-   open( luend,    status = 'scratch' )
-   open( ludeflt,  status = 'scratch' )
-   open( luwrite,  status = 'scratch' )
+open( luprolog, status = 'scratch' )
+open( lustart,  status = 'scratch' )
+open( luloop,   status = 'scratch' )
+open( luend,    status = 'scratch' )
+open( ludeflt,  status = 'scratch' )
+open( luwrite,  status = 'scratch' )
 
-   write( luprolog, '(a)' ) '!!!! WRITE LUPROLOG, open_tmp_files'
-   write( lustart, '(a)' ) '!!!! WRITE LUSTART, open_tmp_files'
-   write( luloop, '(a)') '!!!! WRITE LULOOP, open_tmp_files'
-   write( luend, '(a)') '!!!! WRITE LUEND, open_tmp_files'
-   write( ludeflt, '(a)') '!!!! WRITE LUDEFLT, open_tmp_files'
-   write( luwrite, '(a)') '!!!! WRITE LUWRITE, open_tmp_files'
+write( luprolog, '(a)' ) '!!!! WRITE LUPROLOG, open_tmp_files'
+write( lustart, '(a)' ) '!!!! WRITE LUSTART, open_tmp_files'
+write( luloop, '(a)') '!!!! WRITE LULOOP, open_tmp_files'
+write( luend, '(a)') '!!!! WRITE LUEND, open_tmp_files'
+write( ludeflt, '(a)') '!!!! WRITE LUDEFLT, open_tmp_files'
+write( luwrite, '(a)') '!!!! WRITE LUWRITE, open_tmp_files'
 end subroutine open_tmp_files
 
 !===============================================================================
@@ -463,19 +463,19 @@ end subroutine open_tmp_files
 !===============================================================================
 
 subroutine close_tmp_files
-   close( luprolog )
-   close( lustart  )
-   close( luloop   )
-   close( luend    )
-   close( ludeflt  )
-   close( luwrite  )
+close( luprolog )
+close( lustart  )
+close( luloop   )
+close( luend    )
+close( ludeflt  )
+close( luwrite  )
 
-   luprolog = luprolog - notmps
-   lustart  = lustart  - notmps
-   luloop   = luloop   - notmps
-   luend    = luend    - notmps
-   ludeflt  = ludeflt  - notmps
-   luwrite  = luwrite  - notmps
+luprolog = luprolog - notmps
+lustart  = lustart  - notmps
+luloop   = luloop   - notmps
+luend    = luend    - notmps
+ludeflt  = ludeflt  - notmps
+luwrite  = luwrite  - notmps
 end subroutine close_tmp_files
 
 !===============================================================================
@@ -486,35 +486,35 @@ end subroutine close_tmp_files
 !===============================================================================
 
 subroutine append_files( lufirst )
-   integer, intent(in) :: lufirst
+integer, intent(in) :: lufirst
 
-   integer             :: lu
-   integer             :: io
-   character(len=120)  :: line
+integer             :: lu
+integer             :: io
+character(len=120)  :: line
 
-   !
-   ! If we have not written a subroutine yet, then
-   ! now is the time to close the overall initialisation
-   ! routine
-   ! -- no longer needed
-   !
-   !if ( .not. contains ) then
-   !   write( lusubs, '(a,/)' ) 'end subroutine'
-   !   contains = .true.
-   !endif
+!
+! If we have not written a subroutine yet, then
+! now is the time to close the overall initialisation
+! routine
+! -- no longer needed
+!
+!if ( .not. contains ) then
+!   write( lusubs, '(a,/)' ) 'end subroutine'
+!   contains = .true.
+!endif
 
-   !
-   ! Copy the contents of the scratch files
-   !
-   do lu = lufirst,lufirst+notmps-1
-      rewind( lu )
-      do
-         read( lu, '(a)', iostat=io ) line
-         if ( io /= 0 ) exit
-         write( lusubs, '(a)' ) trim(line)
-      enddo
-      rewind( lu )
-   enddo
+!
+! Copy the contents of the scratch files
+!
+do lu = lufirst,lufirst+notmps-1
+  rewind( lu )
+  do
+    read( lu, '(a)', iostat=io ) line
+    if ( io /= 0 ) exit
+    write( lusubs, '(a)' ) trim(line)
+  enddo
+  rewind( lu )
+enddo
 end subroutine append_files
 
 !===============================================================================
@@ -526,38 +526,38 @@ end subroutine append_files
 
 subroutine merge_files
 
-   integer             :: io
-   character(len=120)  :: line
+integer             :: io
+character(len=120)  :: line
 
-   !
-   ! Copy the contents of the "subroutines" file
-   !
-   rewind( lusubs )
-   do
-      read( lusubs, '(a)', iostat=io ) line
-      if ( io /= 0 ) exit
-      write( ludef, '(a)' ) trim(line)
-   enddo
+!
+! Copy the contents of the "subroutines" file
+!
+rewind( lusubs )
+do
+  read( lusubs, '(a)', iostat=io ) line
+  if ( io /= 0 ) exit
+  write( ludef, '(a)' ) trim(line)
+enddo
 
-   !
-   ! Copy the contents of the "write xml file subroutine" file
-   !
-   rewind( luwritp )
-   do
-      read( luwritp, '(a)', iostat=io ) line
-      if ( io /= 0 ) exit
-      write( ludef, '(a)' ) trim(line)
-   enddo
+!
+! Copy the contents of the "write xml file subroutine" file
+!
+rewind( luwritp )
+do
+  read( luwritp, '(a)', iostat=io ) line
+  if ( io /= 0 ) exit
+  write( ludef, '(a)' ) trim(line)
+enddo
 
-   !
-   ! Copy the contents of the "initialisation subroutine" file
-   !
-   rewind( luinit )
-   do
-      read( luinit, '(a)', iostat=io ) line
-      if ( io /= 0 ) exit
-      write( ludef, '(a)' ) trim(line)
-   enddo
+!
+! Copy the contents of the "initialisation subroutine" file
+!
+rewind( luinit )
+do
+  read( luinit, '(a)', iostat=io ) line
+  if ( io /= 0 ) exit
+  write( ludef, '(a)' ) trim(line)
+enddo
 end subroutine merge_files
 
 !===============================================================================
@@ -568,82 +568,82 @@ end subroutine merge_files
 !===============================================================================
 
 subroutine write_prolog
-   write( ludef, '(a)' ) &
-  &   '!!!! WRITE LUDEF, write_prolog', &
-  &   'module xml_data_' // trim(fname), &
-  &   '   use READ_XML_PRIMITIVES', &
-  &   '   use WRITE_XML_PRIMITIVES', &
-  &   '   use XMLPARSE', &
-  &   '   implicit none', &
-  &   '   save', &
-  &   '   integer, private :: lurep_', &
-  &   '   logical, private :: strict_'
+write( ludef, '(a)' ) &
+&   '!!!! WRITE LUDEF, write_prolog', &
+&   'module xml_data_' // trim(fname), &
+&   '   use READ_XML_PRIMITIVES', &
+&   '   use WRITE_XML_PRIMITIVES', &
+&   '   use XMLPARSE', &
+&   '   implicit none', &
+&   '   save', &
+&   '   integer, private :: lurep_', &
+&   '   logical, private :: strict_'
 
-   write( luprolog, '(a)' ) &
-  &   '!!!! WRITE LUPROLOG, write_prolog', &
-  &   'subroutine read_xml_file_'//trim(fname)//'(fname, lurep, errout)' , &
-  &   '   character(len=*), intent(in)           :: fname'     , &
-  &   '   integer, intent(in), optional          :: lurep'     , &
-  &   '   logical, intent(out), optional         :: errout'    , &
-  &   '   '                                                    , &
-  &   '   type(XML_PARSE)                        :: info'      , &
-  &   '   logical                                :: error'     , &
-  &   '   character(len=80)                      :: tag'       , &
-  &   '   character(len=80)                      :: starttag'  , &
-  &   '   logical                                :: endtag'    , &
-  &   '   character(len=250), dimension(1:2,1:20) :: attribs'   , &
-  &   '   integer                                :: noattribs' , &
-  &   '   character(len=1000), dimension(1:1000)  :: data'      , &
-  &   '   integer                                :: nodata'
+write( luprolog, '(a)' ) &
+&   '!!!! WRITE LUPROLOG, write_prolog', &
+&   'subroutine read_xml_file_'//trim(fname)//'(fname, lurep, errout)' , &
+&   '   character(len=*), intent(in)           :: fname'     , &
+&   '   integer, intent(in), optional          :: lurep'     , &
+&   '   logical, intent(out), optional         :: errout'    , &
+&   '   '                                                    , &
+&   '   type(XML_PARSE)                        :: info'      , &
+&   '   logical                                :: error'     , &
+&   '   character(len=80)                      :: tag'       , &
+&   '   character(len=80)                      :: starttag'  , &
+&   '   logical                                :: endtag'    , &
+&   '   character(len=250), dimension(1:2,1:20) :: attribs'   , &
+&   '   integer                                :: noattribs' , &
+&   '   character(len=1000), dimension(1:1000)  :: data'      , &
+&   '   integer                                :: nodata'
 
-   write( lusubs, '(a)' ) &
-  &   '!!!! WRITE LUSUBS, write_prolog', &
-  &   'contains'
-   write( luinit, '(a)' ) &
-  &   'subroutine init_xml_file_'//trim(fname)
+write( lusubs, '(a)' ) &
+&   '!!!! WRITE LUSUBS, write_prolog', &
+&   'contains'
+write( luinit, '(a)' ) &
+&   'subroutine init_xml_file_'//trim(fname)
 
-   write( luwritp, '(a)' ) &
-  &   '!!!! WRITE LUWRITP, write_prolog', &
-  &   'subroutine write_xml_file_'//trim(fname)//'(fname, lurep)' , &
-  &   '   character(len=*), intent(in)           :: fname'     , &
-  &   '   integer, intent(in), optional          :: lurep'     , &
-  &   '   '                                                    , &
-  &   '   type(XML_PARSE)                        :: info'      , &
-  &   '   integer                                :: indent = 0', &
-  &   '   '                                                    , &
-  &   '   call xml_open( info, fname, .false. )'               , &
-  &   '   call xml_options( info, report_errors=.true.)'       , &
-  &   '   if ( present(lurep) ) then'                          , &
-  &   '       call xml_options( info, report_errors=.true.)'   , &
-  &   '   endif'                                               , &
-  &   '   write(info%lun,''(a)'') &'                           , &
-  &   '      ''<' // trim(root_name) // '>'''
+write( luwritp, '(a)' ) &
+&   '!!!! WRITE LUWRITP, write_prolog', &
+&   'subroutine write_xml_file_'//trim(fname)//'(fname, lurep)' , &
+&   '   character(len=*), intent(in)           :: fname'     , &
+&   '   integer, intent(in), optional          :: lurep'     , &
+&   '   '                                                    , &
+&   '   type(XML_PARSE)                        :: info'      , &
+&   '   integer                                :: indent = 0', &
+&   '   '                                                    , &
+&   '   call xml_open( info, fname, .false. )'               , &
+&   '   call xml_options( info, report_errors=.true.)'       , &
+&   '   if ( present(lurep) ) then'                          , &
+&   '       call xml_options( info, report_errors=.true.)'   , &
+&   '   endif'                                               , &
+&   '   write(info%lun,''(a)'') &'                           , &
+&   '      ''<' // trim(root_name) // '>'''
 
-   write( lumain, '(a)' ) &
-      &   '!!!! WRITE LUMAIN, write_prolog', &
-      &   '   ', &
-      &   '   call init_xml_file_'//trim(fname), &
-      &   '   call xml_open( info, fname, .true. )', &
-      &   '   call xml_options( info, report_errors=.false., ignore_whitespace=.true.)', &
-      &   '   lurep_ = 0', &
-      &   '   if ( present(lurep) ) then', &
-      &   '      lurep_ = lurep', &
-      &   '      call xml_options( info, report_lun=lurep )', &
-      &   '   endif', &
-      &   '   do', &
-      &   '      call xml_get( info, starttag, endtag, attribs, noattribs, &', &
-      &   '         data, nodata)', &
-      &   '      if ( starttag /= ''!--'' ) exit', &
-      &   '   enddo', &
-      &   '   if ( starttag /= "' // trim(root_name) // '" ) then', &
-      &   '      call xml_report_errors( info, &', &
-      &   '         ''XML-file should have root element "' // trim(root_name) // '"'')', &
-      &   '      error = .true.', &
-      &   '      call xml_close(info)', &
-      &   '      return', &
-      &   '   endif'
+write( lumain, '(a)' ) &
+&   '!!!! WRITE LUMAIN, write_prolog', &
+&   '   ', &
+&   '   call init_xml_file_'//trim(fname), &
+&   '   call xml_open( info, fname, .true. )', &
+&   '   call xml_options( info, report_errors=.false., ignore_whitespace=.true.)', &
+&   '   lurep_ = 0', &
+&   '   if ( present(lurep) ) then', &
+&   '      lurep_ = lurep', &
+&   '      call xml_options( info, report_lun=lurep )', &
+&   '   endif', &
+&   '   do', &
+&   '      call xml_get( info, starttag, endtag, attribs, noattribs, &', &
+&   '         data, nodata)', &
+&   '      if ( starttag /= ''!--'' ) exit', &
+&   '   enddo', &
+&   '   if ( starttag /= "' // trim(root_name) // '" ) then', &
+&   '      call xml_report_errors( info, &', &
+&   '         ''XML-file should have root element "' // trim(root_name) // '"'')', &
+&   '      error = .true.', &
+&   '      call xml_close(info)', &
+&   '      return', &
+&   '   endif'
 
-   call add_end_loop
+call add_end_loop
 end subroutine write_prolog
 
 !===============================================================================
@@ -656,85 +656,85 @@ end subroutine write_prolog
 !===============================================================================
 
 subroutine add_begin_loop( checktag, component )
-   logical                                :: checktag
-   logical                                :: component
+logical                                :: checktag
+logical                                :: component
 
-   if ( component ) then
-      write( luloop, '(a)' ) &
+if ( component ) then
+  write( luloop, '(a)' ) &
   &   '!!!! WRITE LULOOP, add_begin_loop', &
   &   '   call init_xml_type_'//trim(typename)//'(dvar)', &
   &   '   has_dvar = .true.'
-   endif
+endif
 
-   begin_loop = .false.
+begin_loop = .false.
 
-   if ( component ) then
-      write( luloop, '(a)' ) &
-     &   '!!!! WRITE LULOOP, add_begin_loop, component .eq. true', &
-     &   '   error  = .false.'     ,&
-     &   '   att_   = 0'           ,&
-     &   '   noatt_ = noattribs+1' ,&
-     &   '   endtag_org = endtag'  ,&
-     &   '   do',  &
-     &   '      if ( nodata /= 0 ) then'           ,&
-     &   '         noattribs = 0'                    ,&
-     &   '         tag = starttag'                   ,&
-     &   '      elseif ( att_ < noatt_ .and. noatt_ > 1 ) then' ,&
-     &   '         att_      = att_ + 1'             ,&
-     &   '         if ( att_ <= noatt_-1 ) then'   ,&
-     &   '            tag       = attribs(1,att_)'   ,&
-     &   '            data(1)   = attribs(2,att_)'   ,&
-     &   '            noattribs = 0'                 ,&
-     &   '            nodata    = 1'                 ,&
-     &   '            endtag    = .false.'           ,&
-     &   '         else'                             ,&
-     &   '            tag       = starttag'          ,&
-     &   '            noattribs = 0'                 ,&
-     &   '            nodata    = 0'                 ,&
-     &   '            endtag    = .true.'            ,&
-     &   '            cycle'                         ,&
-     &   '         endif'                            ,&
-     &   '      else', &
-     &   '         if ( endtag_org ) then', &
-     &   '            return', &
-     &   '         else', &
-     &   '            call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )' ,&
-     &   '            if ( xml_error(info) ) then'                 ,&
-     &   '               write(lurep_,*) ''Error reading input file!''',&
-     &   '               error = .true.'                           ,&
-     &   '               return'                                   ,&
-     &   '            endif'                                       ,&
-     &   '         endif'                                          ,&
-     &   '      endif'
-   else
-      write( luloop, '(a)' ) &
-     &   '!!!! WRITE LULOOP, add_begin_loop, component .eq. false', &
-     &   '   error = .false.' ,&
-     &   '   do',  &
-     &   '      call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )' ,&
-     &   '      if ( xml_error(info) ) then'                       ,&
-     &   '         write(lurep_,*) ''Error reading input file!'''  ,&
-     &   '         error = .true.'                                 ,&
-     &   '         return'                                         ,&
-     &   '      endif'
-   endif
-   if ( checktag ) then
-      write( luloop, '(a)' ) &
+if ( component ) then
+  write( luloop, '(a)' ) &
+  &   '!!!! WRITE LULOOP, add_begin_loop, component .eq. true', &
+  &   '   error  = .false.'     ,&
+  &   '   att_   = 0'           ,&
+  &   '   noatt_ = noattribs+1' ,&
+  &   '   endtag_org = endtag'  ,&
+  &   '   do',  &
+  &   '      if ( nodata /= 0 ) then'           ,&
+  &   '         noattribs = 0'                    ,&
+  &   '         tag = starttag'                   ,&
+  &   '      elseif ( att_ < noatt_ .and. noatt_ > 1 ) then' ,&
+  &   '         att_      = att_ + 1'             ,&
+  &   '         if ( att_ <= noatt_-1 ) then'   ,&
+  &   '            tag       = attribs(1,att_)'   ,&
+  &   '            data(1)   = attribs(2,att_)'   ,&
+  &   '            noattribs = 0'                 ,&
+  &   '            nodata    = 1'                 ,&
+  &   '            endtag    = .false.'           ,&
+  &   '         else'                             ,&
+  &   '            tag       = starttag'          ,&
+  &   '            noattribs = 0'                 ,&
+  &   '            nodata    = 0'                 ,&
+  &   '            endtag    = .true.'            ,&
+  &   '            cycle'                         ,&
+  &   '         endif'                            ,&
+  &   '      else', &
+  &   '         if ( endtag_org ) then', &
+  &   '            return', &
+  &   '         else', &
+  &   '            call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )' ,&
+  &   '            if ( xml_error(info) ) then'                 ,&
+  &   '               write(lurep_,*) ''Error reading input file!''',&
+  &   '               error = .true.'                           ,&
+  &   '               return'                                   ,&
+  &   '            endif'                                       ,&
+  &   '         endif'                                          ,&
+  &   '      endif'
+else
+  write( luloop, '(a)' ) &
+  &   '!!!! WRITE LULOOP, add_begin_loop, component .eq. false', &
+  &   '   error = .false.' ,&
+  &   '   do',  &
+  &   '      call xml_get( info, tag, endtag, attribs, noattribs, data, nodata )' ,&
+  &   '      if ( xml_error(info) ) then'                       ,&
+  &   '         write(lurep_,*) ''Error reading input file!'''  ,&
+  &   '         error = .true.'                                 ,&
+  &   '         return'                                         ,&
+  &   '      endif'
+endif
+if ( checktag ) then
+  write( luloop, '(a)' ) &
   &   '!!!! WRITE LULOOP, add_begin_loop, checktag .eq. true', &
   &   '      if ( endtag .and. tag == starttag ) then'  ,&
   &   '         exit'                                     ,&
   &   '      endif'
-   endif
-   write( luloop, '(a)' ) &
-  &   '!!!! WRITE LULOOP, add_begin_loop', &
-  &   '      if ( endtag .and. noattribs == 0 ) then'   ,&
-  &   '         if ( xml_ok(info) ) then'                 ,&
-  &   '            cycle'                                 ,&
-  &   '         else'                                     ,&
-  &   '            exit'                                  ,&
-  &   '         endif'                                    ,&
-  &   '      endif'                                       ,&
-  &   '      select case( tag )'
+endif
+write( luloop, '(a)' ) &
+&   '!!!! WRITE LULOOP, add_begin_loop', &
+&   '      if ( endtag .and. noattribs == 0 ) then'   ,&
+&   '         if ( xml_ok(info) ) then'                 ,&
+&   '            cycle'                                 ,&
+&   '         else'                                     ,&
+&   '            exit'                                  ,&
+&   '         endif'                                    ,&
+&   '      endif'                                       ,&
+&   '      select case( tag )'
 end subroutine add_begin_loop
 
 !===============================================================================
@@ -746,23 +746,23 @@ end subroutine add_begin_loop
 
 subroutine add_end_loop
 
-   write( luend, '(a)' ) &
-  &   '!!!! WRITE LUEND, add_end_loop',&
-  &   '      case (''comment'', ''!--'')' ,&
-  &   '         ! Simply ignore', &
-  &   '      case default' ,&
-  &   '         if ( strict_ ) then', &
-  &   '            error = .true.', &
-  &   '            call xml_report_errors( info, &', &
-  &   '               ''Unknown or wrongly placed tag: '' // trim(tag))',&
-  &   '         endif'
+write( luend, '(a)' ) &
+&   '!!!! WRITE LUEND, add_end_loop',&
+&   '      case (''comment'', ''!--'')' ,&
+&   '         ! Simply ignore', &
+&   '      case default' ,&
+&   '         if ( strict_ ) then', &
+&   '            error = .true.', &
+&   '            call xml_report_errors( info, &', &
+&   '               ''Unknown or wrongly placed tag: '' // trim(tag))',&
+&   '         endif'
 
-   write( luend, '(a)' ) &
-  &   '!!!! WRITE LUEND, add_end_loop',&
-  &   '      end select' ,&
-  &   '      nodata = 0' ,&
-  &   '      if ( .not. xml_ok(info) ) exit' , &
-  &   '   end do'
+write( luend, '(a)' ) &
+&   '!!!! WRITE LUEND, add_end_loop',&
+&   '      end select' ,&
+&   '      nodata = 0' ,&
+&   '      if ( .not. xml_ok(info) ) exit' , &
+&   '   end do'
 end subroutine add_end_loop
 
 !===============================================================================
@@ -775,265 +775,265 @@ end subroutine add_end_loop
 !===============================================================================
 
 subroutine add_variable( component )
-   logical                                :: component
+logical                                :: component
 
-   integer                                :: idx1
-   integer                                :: idx2
-   integer                                :: idx3
-   integer                                :: idx4
-   integer                                :: idx5
-   integer                                :: idx6
-   integer                                :: idx7
-   integer                                :: k
-   integer                                :: vdim
+integer                                :: idx1
+integer                                :: idx2
+integer                                :: idx3
+integer                                :: idx4
+integer                                :: idx5
+integer                                :: idx6
+integer                                :: idx7
+integer                                :: k
+integer                                :: vdim
 
-   character(len=32)                      :: varname
-   character(len=40)                      :: varcomp
-   character(len=40)                      :: varshape
-   character(len=100)                     :: vardefault
-   character(len=32)                      :: vartype
-   character(len=32)                      :: vartag
-   character(len=10)                      :: dim
-   character(len=10)                      :: strlength
-   character(len=32)                      :: initptr
+character(len=32)                      :: varname
+character(len=40)                      :: varcomp
+character(len=40)                      :: varshape
+character(len=100)                     :: vardefault
+character(len=32)                      :: vartype
+character(len=32)                      :: vartag
+character(len=10)                      :: dim
+character(len=10)                      :: strlength
+character(len=32)                      :: initptr
 
-   idx1 = xml_find_attrib( attribs, noattribs, 'name', varname )
-   idx2 = xml_find_attrib( attribs, noattribs, 'type', vartype )
-   strlength = "--"
-   idx5 = xml_find_attrib( attribs, noattribs, 'length', strlength )
-   if ( idx1 <= 0 ) then
-      write( 20, * ) 'Variable/component found which has no name'
-      error = .true.
-   endif
-   if ( idx2 <= 0 ) then
-      write( 20, * ) 'Variable/component found which has no type - ',trim(varname)
-      error = .true.
-   else
-      dim  = '--'
-      idx7 = xml_find_attrib( attribs, noattribs, 'dimension', dim )
-      idx6 = xml_find_attrib( attribs, noattribs, 'shape', varshape )
-      if ( idx7 >= 1 ) then
-         if ( dim == '1' ) then
-            idx3 = xml_find_attrib( types, notypes, vartype, declare )
-            if ( idx3 > notypes_predefined ) then
-
-!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-                write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable, idx7>=1'
-                write( luprolog, '(a)') &
-                    '   type('//trim(vartype)//'), dimension(:), pointer :: temp_'// &
-                    trim(varname)//' => null()'
-                write( luprolog, '(a)') &
-                    '   integer :: count_'//trim(varname)
-
-                write( lustart, '(a)') '!!!! WRITE LUSTART, add_variable, idx7>=1'
-                write( lustart, '(a)') &
-                    '   count_'//trim(varname)//' = 0'
-!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-               vartype = trim(vartype) // '-array'
-            else
-               vartype = trim(vartype) // '-1dim'
-            endif
-         else
-            error = .true.
-            write(20,*) 'Dimension not supported: ',dim
-         endif
-      endif
-      if ( idx6 >= 1 ) then
-         vartype = trim(vartype) // '-shape'
-         vdim    = 1
-         if ( index(varshape, ',') > 0 ) then
-             vdim = 2
-         endif
-      endif
-
+idx1 = xml_find_attrib( attribs, noattribs, 'name', varname )
+idx2 = xml_find_attrib( attribs, noattribs, 'type', vartype )
+strlength = "--"
+idx5 = xml_find_attrib( attribs, noattribs, 'length', strlength )
+if ( idx1 <= 0 ) then
+  write( 20, * ) 'Variable/component found which has no name'
+  error = .true.
+endif
+if ( idx2 <= 0 ) then
+  write( 20, * ) 'Variable/component found which has no type - ',trim(varname)
+  error = .true.
+else
+  dim  = '--'
+  idx7 = xml_find_attrib( attribs, noattribs, 'dimension', dim )
+  idx6 = xml_find_attrib( attribs, noattribs, 'shape', varshape )
+  if ( idx7 >= 1 ) then
+    if ( dim == '1' ) then
       idx3 = xml_find_attrib( types, notypes, vartype, declare )
-      if ( idx3 <= 0 ) then
-         write( 20, * ) &
-            'Variable/component with unknown type - ',trim(varname)
-         error = .true.
-      endif
-   endif
+      if ( idx3 > notypes_predefined ) then
 
-   idx4 = xml_find_attrib( attribs, noattribs, 'default', vardefault )
+        !VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+        write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable, idx7>=1'
+        write( luprolog, '(a)') &
+        '   type('//trim(vartype)//'), dimension(:), pointer :: temp_'// &
+        trim(varname)//' => null()'
+        write( luprolog, '(a)') &
+        '   integer :: count_'//trim(varname)
 
-   if ( component ) then
-      varcomp = 'dvar%'//varname
-   else
-      varcomp = varname
-   endif
+        write( lustart, '(a)') '!!!! WRITE LUSTART, add_variable, idx7>=1'
+        write( lustart, '(a)') &
+        '   count_'//trim(varname)//' = 0'
+        !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   idx1 = xml_find_attrib( attribs, noattribs, 'tag', vartag )
-   if ( idx1 < 1 ) then
-      vartag = varname
-   endif
-
-   if ( .not. error ) then
-      if ( index( declare, "pointer" ) > 0 ) then
-         initptr = " => null()"
+        vartype = trim(vartype) // '-array'
       else
-         initptr = ""
+        vartype = trim(vartype) // '-1dim'
       endif
+    else
+      error = .true.
+      write(20,*) 'Dimension not supported: ',dim
+    endif
+  endif
+  if ( idx6 >= 1 ) then
+    vartype = trim(vartype) // '-shape'
+    vdim    = 1
+    if ( index(varshape, ',') > 0 ) then
+      vdim = 2
+    endif
+  endif
 
-      k = index( declare, 'SHAPE' )
-      if ( k > 0 ) then
-          declare = declare(1:k-1) // trim(varshape) // declare(k+5:)
-      endif
+  idx3 = xml_find_attrib( types, notypes, vartype, declare )
+  if ( idx3 <= 0 ) then
+    write( 20, * ) &
+    'Variable/component with unknown type - ',trim(varname)
+    error = .true.
+  endif
+endif
 
-      if ( index( declare, "?" ) <= 0 ) then
-         write( ludef, '(a)') '!!!! WRITE LUDEF, add_variable'
-         write( ludef,    '(4a)' ) declare,    ' :: ', trim(varname), trim(initptr)
-      else
-         if ( strlength == "--" ) then
-             strlength = "1" ! Hm, error is better?
-         endif
-         idx5 = index( declare, "?" )
-         write( ludef, '(a)') '!!!! WRITE LUDEF, add_variable'
-         write( ludef,    '(6a)' ) declare(1:idx5-1), trim(strlength), declare(idx5+1:), &
-            ' :: ', trim(varname), trim(initptr)
-      endif
+idx4 = xml_find_attrib( attribs, noattribs, 'default', vardefault )
 
-      if ( idx6 > 0 ) then
-         k = index( types(2,idx3-1), '?' )
-         if ( k <= 0 ) then
-            write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable, k<=0'
-            write( luprolog, '(3a)' ) types(2,idx3-1), ' :: ', 'p_'//trim(varname)
-         else
-            write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable, k>0'
-            write( luprolog, '(6a)' ) types(2,idx3-1)(1:k-1), trim(strlength), &
-               types(2,idx3-1)(k+1:), ' :: ', 'p_'//trim(varname)
-         endif
-      endif
-      write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable'
-      write( luprolog, '(3a)' ) types(2,1), ' :: ', 'has_'//trim(varname)
-      write( lustart, '(a)') '!!!! WRITE LUSTART, add_variable'
-      write( lustart,  '(3a)' ) '   has_', varname, ' = .false.'
-      if ( dim /= '--' ) then
-!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-          write( lustart, '(a)') '!!!! WRITE LUSTART, add_variable'
-         write( lustart,  '(3a)' ) '   allocate(' // trim(varcomp), '(1))'
-!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      endif
-      write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable'
-      write( luloop,   '(a)' ) '      case('''//trim(vartag)//''')'
+if ( component ) then
+  varcomp = 'dvar%'//varname
+else
+  varcomp = varname
+endif
 
-      if ( idx6 <= 0 ) then
-!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-         write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6<=0, varcomp='// &
-            trim(varcomp)  
-         write( luloop, '(a,i2,a,i2,a,i2)') '!!!!        varname=' // trim(varname) // ', vartype=' // &
-            trim(vartype) // ', idx3=', idx3, ', idx6=', idx6, ', idx7=', idx7
-         if (idx7 >= 0) then
-             write( luloop,   '(a)' ) &
-                &'         call '//trim(types(3,idx3))//'( &', &
-                &'            info, tag, endtag, attribs, noattribs, data, nodata, &',&
-                &'            '//trim(varcomp)//', has_'//trim(varname)//', count_'//trim(varname)//' )'
-         else
-             write( luloop,   '(a)' ) &
-                &'         call '//trim(types(3,idx3))//'( &', &
-                &'            info, tag, endtag, attribs, noattribs, data, nodata, &',&
-                &'            ' // trim(varcomp) // ', has_'//trim(varname) // ' )'
-         endif
-!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      else
-         write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0'
-         write( luloop,   '(a)' ) &
-            &'         call '//trim(types(3,idx3))//'( &', &
-            &'            info, tag, endtag, attribs, noattribs, data, nodata, &',&
-            &'            p_' // trim(varname) // ', has_'//trim(varname) // ' )',&
-            &'         if ( has_'//trim(varname) // ') then'
-         if ( vdim == 1 ) then
-             write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0, vdim==1'
-             write( luloop,   '(a)' ) &
-            &'            if ( size('//trim(varcomp)//') <= size(p_'//trim(varname)//') ) then', &
-            &'               '//trim(varcomp) // ' = p_'//trim(varname)//'(1:size('//trim(varcomp)//'))', &
-            &'            else', &
-            &'               '//trim(varcomp) // '(1:size(p_'//trim(varname)//')) = p_'//trim(varname), &
-            &'            endif'
-         else
-             write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0, vdim /= 1'
-             write( luloop,   '(a)' ) &
-            &'            if ( size(p_'//trim(varname)//') >= size('//trim(varcomp)//') ) then',&
-            &'               '//trim(varcomp)//' = reshape(p_'//trim(varname)//', shape('//trim(varcomp)//'))',&
-            &'            else',&
-            &'               has_'//trim(varname)//' = .false.',&
-            &'               call xml_report_errors(info, ''Incorrect number of values for '//trim(varname)//''')', &
-            &'            endif'
-         endif
-         write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0'
-         write( luloop,   '(a)' ) &
-            &'            deallocate( p_'//trim(varname)//' )', &
-            &'         endif'
-      endif
-      if ( idx4 <= 0 ) then
-         write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4 <= 0'
-         write( luend,    '(a)' ) &
-         &'   if ( .not. has_'//trim(varname)//' ) then'
+idx1 = xml_find_attrib( attribs, noattribs, 'tag', vartag )
+if ( idx1 < 1 ) then
+  vartag = varname
+endif
 
-         if ( component ) then
-             write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0, component=true'
-            write( luend,    '(a)' ) &
-         &'      has_dvar = .false.'
-         else
-             write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0, component=false'
-            write( luend,    '(a)' ) &
-         &'      error = .true.'
-         endif
+if ( .not. error ) then
+  if ( index( declare, "pointer" ) > 0 ) then
+    initptr = " => null()"
+  else
+    initptr = ""
+  endif
 
-         write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0'
-         write( luend,    '(a)' ) &
-         &'      call xml_report_errors(info, ''Missing data on '//trim(varname)//''')', &
-         &'   endif'
+  k = index( declare, 'SHAPE' )
+  if ( k > 0 ) then
+    declare = declare(1:k-1) // trim(varshape) // declare(k+5:)
+  endif
 
-!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-        if (idx7 >= 0) then
-            
+  if ( index( declare, "?" ) <= 0 ) then
+    write( ludef, '(a)') '!!!! WRITE LUDEF, add_variable'
+    write( ludef,    '(4a)' ) declare,    ' :: ', trim(varname), trim(initptr)
+  else
+    if ( strlength == "--" ) then
+      strlength = "1" ! Hm, error is better?
+    endif
+    idx5 = index( declare, "?" )
+    write( ludef, '(a)') '!!!! WRITE LUDEF, add_variable'
+    write( ludef,    '(6a)' ) declare(1:idx5-1), trim(strlength), declare(idx5+1:), &
+    ' :: ', trim(varname), trim(initptr)
+  endif
+
+  if ( idx6 > 0 ) then
+    k = index( types(2,idx3-1), '?' )
+    if ( k <= 0 ) then
+      write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable, k<=0'
+      write( luprolog, '(3a)' ) types(2,idx3-1), ' :: ', 'p_'//trim(varname)
+    else
+      write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable, k>0'
+      write( luprolog, '(6a)' ) types(2,idx3-1)(1:k-1), trim(strlength), &
+      types(2,idx3-1)(k+1:), ' :: ', 'p_'//trim(varname)
+    endif
+  endif
+  write( luprolog, '(a)') '!!!! WRITE LUPROLOG, add_variable'
+  write( luprolog, '(3a)' ) types(2,1), ' :: ', 'has_'//trim(varname)
+  write( lustart, '(a)') '!!!! WRITE LUSTART, add_variable'
+  write( lustart,  '(3a)' ) '   has_', varname, ' = .false.'
+  if ( dim /= '--' ) then
+    !VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+    write( lustart, '(a)') '!!!! WRITE LUSTART, add_variable'
+    write( lustart,  '(3a)' ) '   allocate(' // trim(varcomp), '(1))'
+    !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  endif
+  write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable'
+  write( luloop,   '(a)' ) '      case('''//trim(vartag)//''')'
+
+  if ( idx6 <= 0 ) then
+    !VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+    write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6<=0, varcomp='// &
+    trim(varcomp)  
+    write( luloop, '(a,i2,a,i2,a,i2)') '!!!!        varname=' // trim(varname) // ', vartype=' // &
+    trim(vartype) // ', idx3=', idx3, ', idx6=', idx6, ', idx7=', idx7
+    if (idx7 >= 0) then
+      write( luloop,   '(a)' ) &
+      &'         call '//trim(types(3,idx3))//'( &', &
+      &'            info, tag, endtag, attribs, noattribs, data, nodata, &',&
+      &'            '//trim(varcomp)//', has_'//trim(varname)//', count_'//trim(varname)//' )'
+    else
+      write( luloop,   '(a)' ) &
+      &'         call '//trim(types(3,idx3))//'( &', &
+      &'            info, tag, endtag, attribs, noattribs, data, nodata, &',&
+      &'            ' // trim(varcomp) // ', has_'//trim(varname) // ' )'
+    endif
+    !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  else
+    write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0'
+    write( luloop,   '(a)' ) &
+    &'         call '//trim(types(3,idx3))//'( &', &
+    &'            info, tag, endtag, attribs, noattribs, data, nodata, &',&
+    &'            p_' // trim(varname) // ', has_'//trim(varname) // ' )',&
+    &'         if ( has_'//trim(varname) // ') then'
+    if ( vdim == 1 ) then
+      write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0, vdim==1'
+      write( luloop,   '(a)' ) &
+      &'            if ( size('//trim(varcomp)//') <= size(p_'//trim(varname)//') ) then', &
+      &'               '//trim(varcomp) // ' = p_'//trim(varname)//'(1:size('//trim(varcomp)//'))', &
+      &'            else', &
+      &'               '//trim(varcomp) // '(1:size(p_'//trim(varname)//')) = p_'//trim(varname), &
+      &'            endif'
+    else
+      write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0, vdim /= 1'
+      write( luloop,   '(a)' ) &
+      &'            if ( size(p_'//trim(varname)//') >= size('//trim(varcomp)//') ) then',&
+      &'               '//trim(varcomp)//' = reshape(p_'//trim(varname)//', shape('//trim(varcomp)//'))',&
+      &'            else',&
+      &'               has_'//trim(varname)//' = .false.',&
+      &'               call xml_report_errors(info, ''Incorrect number of values for '//trim(varname)//''')', &
+      &'            endif'
+    endif
+    write( luloop, '(a)') '!!!! WRITE LULOOP, add_variable, idx6>0'
+    write( luloop,   '(a)' ) &
+    &'            deallocate( p_'//trim(varname)//' )', &
+    &'         endif'
+  endif
+  if ( idx4 <= 0 ) then
+    write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4 <= 0'
+    write( luend,    '(a)' ) &
+    &'   if ( .not. has_'//trim(varname)//' ) then'
+
+    if ( component ) then
+      write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0, component=true'
+      write( luend,    '(a)' ) &
+      &'      has_dvar = .false.'
+    else
+      write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0, component=false'
+      write( luend,    '(a)' ) &
+      &'      error = .true.'
+    endif
+
+    write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0'
+    write( luend,    '(a)' ) &
+    &'      call xml_report_errors(info, ''Missing data on '//trim(varname)//''')', &
+    &'   endif'
+
+    !VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+    if (idx7 >= 0) then
 
 
-            write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0, idx7>=0' 
-            !write( luend, '(a)') &
-            !    '   print *, "***xmlreader*** '//trim(varcomp)//' has size:", size('//trim(varcomp)//')'
-            !write( luend, '(a)') &
-            !    '   print *, "***xmreader*** count_'//trim(varname)//' has value:", count_'//trim(varname)
-            write( luend, '(a)') &
-                '   allocate(temp_'//trim(varname)//'(1:count_'//trim(varname)//'))', &
-                '   temp_'//trim(varname)//' = '//trim(varcomp)//'(1:count_'//trim(varname)//')', &
-                '   deallocate('//trim(varcomp)//')', &
-                '   '//trim(varcomp)//' => temp_'//trim(varname)
-        endif
-!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+      write( luend, '(a)') '!!!! WRITE LUEND, add_variable, idx4<=0, idx7>=0' 
+      !write( luend, '(a)') &
+      !    '   print *, "***xmlreader*** '//trim(varcomp)//' has size:", size('//trim(varcomp)//')'
+      !write( luend, '(a)') &
+      !    '   print *, "***xmreader*** count_'//trim(varname)//' has value:", count_'//trim(varname)
+      write( luend, '(a)') &
+      '   allocate(temp_'//trim(varname)//'(1:count_'//trim(varname)//'))', &
+      '   temp_'//trim(varname)//' = '//trim(varcomp)//'(1:count_'//trim(varname)//')', &
+      '   deallocate('//trim(varcomp)//')', &
+      '   '//trim(varcomp)//' => temp_'//trim(varname)
+    endif
+    !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-      else
-         !
-         ! Note: the attribute value is supposed to have the quotes, if that
-         ! is relevant for the variable's type
-         !
-         if ( component ) then
-            write( ludeflt, '(a)') '!!!! WRITE LUDFLT, add_variable, idx4>0, compoment=true'
-            write( ludeflt,    '(4a)' ) &
-            &'   dvar%', trim(varname), ' = ', attribs(2,idx4)
-         else
-            write( luinit, '(a)') '!!!! WRITE LUINIT, add_variable, idx4>0, component=false'
-            write( luinit,   '(4a)' ) &
-            &'   ', trim(varname), ' = ', attribs(2,idx4)
-         endif
-      endif
-      !
-      ! Write the component/variable
-      !
-      if ( component ) then
-         write( luwrite, '(a)') '!!!! WRITE LUWRITE, add_variable, component=true'
-         write( luwrite,   '(4a)' ) &
-         &'   call '//trim(types(4,idx3))//'(', &
-         &' info, '''//trim(vartag)//''', indent+3, dvar%', trim(varname), ')'
-      else
-         write( luwrv, '(a)') '!!!! WRITE LUWRV, add_variable, component=false'
-         write( luwrv,   '(4a)' ) &
-         &'   call '//trim(types(4,idx3))//'(', &
-         &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
-      endif
-   endif
+  else
+    !
+    ! Note: the attribute value is supposed to have the quotes, if that
+    ! is relevant for the variable's type
+    !
+    if ( component ) then
+      write( ludeflt, '(a)') '!!!! WRITE LUDFLT, add_variable, idx4>0, compoment=true'
+      write( ludeflt,    '(4a)' ) &
+      &'   dvar%', trim(varname), ' = ', attribs(2,idx4)
+    else
+      write( luinit, '(a)') '!!!! WRITE LUINIT, add_variable, idx4>0, component=false'
+      write( luinit,   '(4a)' ) &
+      &'   ', trim(varname), ' = ', attribs(2,idx4)
+    endif
+  endif
+  !
+  ! Write the component/variable
+  !
+  if ( component ) then
+    write( luwrite, '(a)') '!!!! WRITE LUWRITE, add_variable, component=true'
+    write( luwrite,   '(4a)' ) &
+    &'   call '//trim(types(4,idx3))//'(', &
+    &' info, '''//trim(vartag)//''', indent+3, dvar%', trim(varname), ')'
+  else
+    write( luwrv, '(a)') '!!!! WRITE LUWRV, add_variable, component=false'
+    write( luwrv,   '(4a)' ) &
+    &'   call '//trim(types(4,idx3))//'(', &
+    &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
+  endif
+endif
 
 end subroutine add_variable
 
@@ -1045,34 +1045,34 @@ end subroutine add_variable
 !===============================================================================
 
 subroutine add_typedef( dyn_strings )
-   logical, intent(in)                    :: dyn_strings
+logical, intent(in)                    :: dyn_strings
 
-   integer                                :: idx1
-   integer                                :: idx2
+integer                                :: idx1
+integer                                :: idx2
 
-   character(len=32)                      :: typetag
+character(len=32)                      :: typetag
 
-   idx1 = xml_find_attrib( attribs, noattribs, 'name', typename )
-   if ( idx1 <= 0 ) then
-      write( 20, * ) 'Type definition found which has no name'
-      error = .true.
-   endif
+idx1 = xml_find_attrib( attribs, noattribs, 'name', typename )
+if ( idx1 <= 0 ) then
+  write( 20, * ) 'Type definition found which has no name'
+  error = .true.
+endif
 
-   !
-   ! We need a new set of temporary files
-   !
-   call open_tmp_files( luprolog+notmps )
+!
+! We need a new set of temporary files
+!
+call open_tmp_files( luprolog+notmps )
 
-   idx2 = xml_find_attrib( attribs, noattribs, 'tag', typetag )
-   if ( idx1 < 1 ) then
-      typetag = typename
-   endif
+idx2 = xml_find_attrib( attribs, noattribs, 'tag', typetag )
+if ( idx1 < 1 ) then
+  typetag = typename
+endif
 
-   if ( .not. error ) then
-      write( ludef, '(a)') '!!!! WRITE LUDEF, add_typedef'
-      write( ludef,    '(/,2a)' ) 'type ',trim(typename)
-      write( luprolog, '(a)' ) &
-!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+if ( .not. error ) then
+  write( ludef, '(a)') '!!!! WRITE LUDEF, add_typedef'
+  write( ludef,    '(/,2a)' ) 'type ',trim(typename)
+  write( luprolog, '(a)' ) &
+  !VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   &   '!!!! WRITE LUPROLOG, add_typedef', &
   &   'subroutine read_xml_type_'//trim(typename)//'_array( &'      ,&
   &   '      info, tag, endtag, attribs, noattribs, data, nodata, &',&
@@ -1107,9 +1107,9 @@ subroutine add_typedef( dyn_strings )
   &   '              dvar(count_dvar), has_dvar )'                      ,&
   &   'end subroutine read_xml_type_'//trim(typename)//'_array'      ,&
   &   '   '
-!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-      write( luwrite, '(a)' ) &
+  write( luwrite, '(a)' ) &
   &   '!!!! WRITE LUWRITE, add_typedef', &
   &   'subroutine write_xml_type_'//trim(typename)//'_array( &'     ,&
   &   '      info, tag, indent, dvar )'                             ,&
@@ -1135,7 +1135,7 @@ subroutine add_typedef( dyn_strings )
   &   '   write(info%lun, ''(4a)'' ) indentation(1:min(indent,100)),&',&
   &   '       ''<'',trim(tag), ''>'''
 
-      write( luprolog, '(a)' ) &
+  write( luprolog, '(a)' ) &
   &   '!!!! WRITE LUPROLOG, add_typedef',&
   &   'subroutine read_xml_type_'//trim(typename)//&
   &         '( info, starttag, endtag, attribs, noattribs, data, nodata, &' ,&
@@ -1154,62 +1154,62 @@ subroutine add_typedef( dyn_strings )
   &   '   integer                                      :: noatt_    ',&
   &   '   logical                                      :: error     ',&
   &   '   logical                                      :: endtag_org'
-      if ( dyn_strings ) then
-          write( luprolog, '(a)' ) &
-  &   '   character(len=len(starttag))                 :: tag       '
-      else
-          write( luprolog, '(a)' ) &
-  &   '   character(len=80)                            :: tag       '
-      endif
+  if ( dyn_strings ) then
+    write( luprolog, '(a)' ) &
+    &   '   character(len=len(starttag))                 :: tag       '
+  else
+    write( luprolog, '(a)' ) &
+    &   '   character(len=80)                            :: tag       '
+  endif
 
-      !
-      ! Note: this may require a more sophisticated approach
-      ! when the components of the type are also pointers ...
-      !
-      write( ludeflt, '(a)' ) &
+  !
+  ! Note: this may require a more sophisticated approach
+  ! when the components of the type are also pointers ...
+  !
+  write( ludeflt, '(a)' ) &
   &   '!!!! WRITE LUDEFLT, add_typedef', &
   &   'subroutine init_xml_type_'//trim(typename)//'_array( dvar )  ',&
   &   '   type('//trim(typename)//'), dimension(:), pointer :: dvar ',&
   &   '   if ( associated( dvar ) ) then'                            ,&
   &   '      deallocate( dvar )'                                     ,&
   &   '   endif'                                                     ,&
-!VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+  !VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
   &   '   allocate( dvar(1) )'                                       ,&
-!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   &   'end subroutine init_xml_type_'//trim(typename)//'_array'      ,&
   &   'subroutine init_xml_type_'//trim(typename)//'(dvar)'          ,&
   &   '   type('//trim(typename)//') :: dvar '
 
-      begin_loop = .true.
+  begin_loop = .true.
 
-      call add_end_loop
+  call add_end_loop
 
-      !
-      ! Add the names of the two new types to the list
-      !
-      allocate( new_types(1:4,1:notypes+3) )
-      new_types(:,1:notypes) = types
-      deallocate( types )
-      types => new_types
+  !
+  ! Add the names of the two new types to the list
+  !
+  allocate( new_types(1:4,1:notypes+3) )
+  new_types(:,1:notypes) = types
+  deallocate( types )
+  types => new_types
 
-      types(1,notypes+1) = typename
-      types(2,notypes+1) = '   type('//trim(typename)//')'
-      types(3,notypes+1) = 'read_xml_type_'//trim(typename)
-      types(4,notypes+1) = 'write_xml_type_'//trim(typename)
+  types(1,notypes+1) = typename
+  types(2,notypes+1) = '   type('//trim(typename)//')'
+  types(3,notypes+1) = 'read_xml_type_'//trim(typename)
+  types(4,notypes+1) = 'write_xml_type_'//trim(typename)
 
-      types(1,notypes+2) = trim(typename) // '-array'
-      types(2,notypes+2) = '   type('//trim(typename)//'), dimension(:), pointer'
-      types(3,notypes+2) = 'read_xml_type_'//trim(typename)//'_array'
-      types(4,notypes+2) = 'write_xml_type_'//trim(typename)//'_array'
+  types(1,notypes+2) = trim(typename) // '-array'
+  types(2,notypes+2) = '   type('//trim(typename)//'), dimension(:), pointer'
+  types(3,notypes+2) = 'read_xml_type_'//trim(typename)//'_array'
+  types(4,notypes+2) = 'write_xml_type_'//trim(typename)//'_array'
 
-      types(1,notypes+3) = trim(typename) // '-shape'
-      types(2,notypes+3) = '   type('//trim(typename)//'), dimension(SHAPE)'
-      types(3,notypes+3) = 'read_xml_type_'//trim(typename)//'_array'
-      types(4,notypes+3) = 'write_xml_type_'//trim(typename)//'_array'
+  types(1,notypes+3) = trim(typename) // '-shape'
+  types(2,notypes+3) = '   type('//trim(typename)//'), dimension(SHAPE)'
+  types(3,notypes+3) = 'read_xml_type_'//trim(typename)//'_array'
+  types(4,notypes+3) = 'write_xml_type_'//trim(typename)//'_array'
 
-      notypes = notypes + 3
+  notypes = notypes + 3
 
-   endif
+endif
 end subroutine add_typedef
 
 !===============================================================================
@@ -1220,21 +1220,21 @@ end subroutine add_typedef
 !===============================================================================
 
 subroutine close_typedef( component )
-   logical, intent(out) :: component
+logical, intent(out) :: component
 
-   component = .false.
-   write( ludef, '(a)' ) 'end type '//trim(typename)
-   write( luend, '(a)' ) &
-  &   'end subroutine read_xml_type_'//trim(typename)
-   write( ludeflt, '(a)' ) &
-  &   'end subroutine init_xml_type_'//trim(typename)
-   write( luwrite, '(a)' ) &
-  &   '   write(info%lun,''(4a)'') indentation(1:min(indent,100)), &' ,&
-  &   '       ''</'' //trim(tag) // ''>''', &
-  &   'end subroutine write_xml_type_'//trim(typename) ,&
-  &   ' '
-   call append_files( luprolog )
-   call close_tmp_files
+component = .false.
+write( ludef, '(a)' ) 'end type '//trim(typename)
+write( luend, '(a)' ) &
+&   'end subroutine read_xml_type_'//trim(typename)
+write( ludeflt, '(a)' ) &
+&   'end subroutine init_xml_type_'//trim(typename)
+write( luwrite, '(a)' ) &
+&   '   write(info%lun,''(4a)'') indentation(1:min(indent,100)), &' ,&
+&   '       ''</'' //trim(tag) // ''>''', &
+&   'end subroutine write_xml_type_'//trim(typename) ,&
+&   ' '
+call append_files( luprolog )
+call close_tmp_files
 
 end subroutine close_typedef
 
@@ -1246,52 +1246,52 @@ end subroutine close_typedef
 !===============================================================================
 
 subroutine add_placeholder( dyn_strings )
-   logical, intent(in)                    :: dyn_strings
+logical, intent(in)                    :: dyn_strings
 
-   integer                                :: idx1
-   integer                                :: idx2
+integer                                :: idx1
+integer                                :: idx2
 
-   character(len=32)                      :: tag
-   character(len=20)                      :: optional
+character(len=32)                      :: tag
+character(len=20)                      :: optional
 
-   idx1 = xml_find_attrib( attribs, noattribs, 'tag', tag )
-   if ( idx1 <= 0 ) then
-      write( 20, * ) 'Placeholder definition found which has no tag name'
-      error = .true.
-   endif
+idx1 = xml_find_attrib( attribs, noattribs, 'tag', tag )
+if ( idx1 <= 0 ) then
+  write( 20, * ) 'Placeholder definition found which has no tag name'
+  error = .true.
+endif
 
-   optional = 'no'
-   idx2 = xml_find_attrib( attribs, noattribs, 'optional', optional )
+optional = 'no'
+idx2 = xml_find_attrib( attribs, noattribs, 'optional', optional )
 
-   if ( optional == 'yes' ) then
-      if ( begin_loop ) then
-         call add_begin_loop( .false., .false. )
-      endif
-      write( luloop, '(a)' ) &
-         '      case('''//trim(tag)//''')',&
-         '         ! Simply ignore the tag'
-   else
-      no_placeholders = no_placeholders + 1
-      placeholder(no_placeholders) = tag
+if ( optional == 'yes' ) then
+  if ( begin_loop ) then
+    call add_begin_loop( .false., .false. )
+  endif
+  write( luloop, '(a)' ) &
+  '      case('''//trim(tag)//''')',&
+  '         ! Simply ignore the tag'
+else
+  no_placeholders = no_placeholders + 1
+  placeholder(no_placeholders) = tag
 
-      write( luloop, '(a)' ) &
-         '      case('''//trim(tag)//''')',&
-        &'         call read_xml_place_'//trim(tag)//'( info, &', &
-        &'            tag, attribs, noattribs, data, nodata )'
-      comp = .false.
+  write( luloop, '(a)' ) &
+  '      case('''//trim(tag)//''')',&
+  &'         call read_xml_place_'//trim(tag)//'( info, &', &
+  &'            tag, attribs, noattribs, data, nodata )'
+  comp = .false.
 
-      !
-      ! We need a new set of temporary files
-      !
-      call open_tmp_files( luprolog+notmps )
+  !
+  ! We need a new set of temporary files
+  !
+  call open_tmp_files( luprolog+notmps )
 
-      !
-      ! Write the first part of the routine
-      ! NOTE:
-      ! Will require an extra argument when collecting all variables
-      ! in one derived type
-      !
-      write( luprolog, '(a)' ) &
+  !
+  ! Write the first part of the routine
+  ! NOTE:
+  ! Will require an extra argument when collecting all variables
+  ! in one derived type
+  !
+  write( luprolog, '(a)' ) &
   &   'subroutine read_xml_place_'//trim(tag)//&
   &         '( info, starttag, attribs, noattribs, data, nodata )'   ,&
   &   '   type(XML_PARSE)                                 :: info'   ,&
@@ -1303,31 +1303,31 @@ subroutine add_placeholder( dyn_strings )
   &   '   '                                                          ,&
   &   '   logical                                      :: error     ',&
   &   '   logical                                      :: endtag    '
-      if ( dyn_strings ) then
-          write( luprolog, '(a)' ) &
-  &   '   character(len=len(starttag))                 :: tag       '
-      else
-          write( luprolog, '(a)' ) &
-  &   '   character(len=80)                            :: tag       '
-      endif
+  if ( dyn_strings ) then
+    write( luprolog, '(a)' ) &
+    &   '   character(len=len(starttag))                 :: tag       '
+  else
+    write( luprolog, '(a)' ) &
+    &   '   character(len=80)                            :: tag       '
+  endif
 
-      begin_loop = .true.
+  begin_loop = .true.
 
-      call add_end_loop
+  call add_end_loop
 
-      write(luwrite,'(a)') &
-        &'subroutine write_xml_place_'//trim(tag)//'( &'        ,&
-        &'      info, indent )'                                 ,&
-        &'   type(XML_PARSE)                          :: info'  ,&
-        &'   integer                                  :: indent',&
-        &'   character(len=100)                       :: indentation' ,&
-        &'   indentation = '' '''                               ,&
-        &'   write(info%lun, ''(4a)'' ) indentation(1:min(indent,100)),&',&
-        &'       ''<'// trim(tag) // '>'''
-      write(luwritp,'(a)') &
-        &'   call write_xml_place_'//trim(tag)//'( info, indent+3 )'
+  write(luwrite,'(a)') &
+  &'subroutine write_xml_place_'//trim(tag)//'( &'        ,&
+  &'      info, indent )'                                 ,&
+  &'   type(XML_PARSE)                          :: info'  ,&
+  &'   integer                                  :: indent',&
+  &'   character(len=100)                       :: indentation' ,&
+  &'   indentation = '' '''                               ,&
+  &'   write(info%lun, ''(4a)'' ) indentation(1:min(indent,100)),&',&
+  &'       ''<'// trim(tag) // '>'''
+  write(luwritp,'(a)') &
+  &'   call write_xml_place_'//trim(tag)//'( info, indent+3 )'
 
-   endif
+endif
 end subroutine add_placeholder
 
 !===============================================================================
@@ -1339,19 +1339,19 @@ end subroutine add_placeholder
 
 subroutine close_placeholder
 
-   write( luend, '(a)' ) &
-  &   'end subroutine read_xml_place_'//trim(placeholder(no_placeholders))
+write( luend, '(a)' ) &
+&   'end subroutine read_xml_place_'//trim(placeholder(no_placeholders))
 
-   write( luwrite, '(a)' ) &
-  &   '   write(info%lun,''(4a)'') indentation(1:min(indent,100)), &' ,&
-  &   '       ''</' //trim(placeholder(no_placeholders)) // '>''' ,&
-  &   'end subroutine write_xml_place_'//trim(placeholder(no_placeholders)) ,&
-  &   ' '
+write( luwrite, '(a)' ) &
+&   '   write(info%lun,''(4a)'') indentation(1:min(indent,100)), &' ,&
+&   '       ''</' //trim(placeholder(no_placeholders)) // '>''' ,&
+&   'end subroutine write_xml_place_'//trim(placeholder(no_placeholders)) ,&
+&   ' '
 
-   call append_files( luprolog )
-   call close_tmp_files
+call append_files( luprolog )
+call close_tmp_files
 
-   no_placeholders = no_placeholders - 1
+no_placeholders = no_placeholders - 1
 
 end subroutine close_placeholder
 
