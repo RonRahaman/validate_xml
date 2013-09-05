@@ -79,8 +79,8 @@ end type XML_PARSE
 
 integer, parameter    :: XML_STDOUT       = -1
 integer, private      :: report_lun_      = XML_STDOUT
-logical, private      :: report_errors_   = .true.
-logical, private      :: report_details_  = .true.
+logical, private      :: report_errors_   = .false.
+logical, private      :: report_details_  = .false.
 
 !===============================================================================
 ! Global data (the ampersand must come first)
@@ -588,6 +588,7 @@ subroutine xml_get( info, tag, endtag, attribs, no_attribs, &
         call xml_report_details( 'XML_GET - end of file found - LU-number: ', &
           info%lun )
         info%eof = .true.
+        exit
       endif
       !elseif ( ierr > 0 ) then
       !   call xml_report_errors( 'XML_GET - error reading file with LU-number ', &
