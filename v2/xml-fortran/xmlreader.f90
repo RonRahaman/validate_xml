@@ -593,7 +593,7 @@ write( luprolog, '(a)' ) &
 &   '   logical                                :: endtag'    , &
 &   '   character(len=250), dimension(1:2,1:20) :: attribs'   , &
 &   '   integer                                :: noattribs' , &
-&   '   character(len=1000), dimension(1:1000)  :: data'      , &
+&   '   character(len=1000), dimension(1:10000)  :: data'      , &
 &   '   integer                                :: nodata'
 
 write( lusubs, '(a)' ) &

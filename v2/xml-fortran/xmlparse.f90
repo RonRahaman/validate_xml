@@ -79,8 +79,8 @@ end type XML_PARSE
 
 integer, parameter    :: XML_STDOUT       = -1
 integer, private      :: report_lun_      = XML_STDOUT
-logical, private      :: report_errors_   = .false.
-logical, private      :: report_details_  = .false.
+logical, private      :: report_errors_   = .true.
+logical, private      :: report_details_  = .true.
 
 !===============================================================================
 ! Global data (the ampersand must come first)
