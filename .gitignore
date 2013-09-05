@@ -11,3 +11,4 @@ xmlreader.out
 */tags
 */*.dSYM
 *.xml
+.DS_Store

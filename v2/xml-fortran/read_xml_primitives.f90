@@ -18,6 +18,7 @@
 !
 module read_xml_primitives
    use xmlparse
+   use iso_varying_string
    implicit none
 
    private :: read_from_buffer
