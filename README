@@ -15,5 +15,7 @@ handles up to 100K lines (NOTE: this is still static).  (d) In
 read_xml_array.inc, the data buffer (a string which concatenates all the data
 lines in (c)) is an iso_varying_string, so it may handle arbitrary lengths.
 
-v3/ contains optimizations for buffer sizes
+v3/ contains optimizations for buffer sizes 
 IMPROVEMENTS:  all improvments from v1; and improvements (c) and (d) from v2
+Improvment v2(b) was a red herring, as the line length was not a limiting
+factor
