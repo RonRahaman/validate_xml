@@ -11,8 +11,8 @@ read_write_driver:  $(xml_fortran_objects) xml_data_materials_t.o xml_data_talli
 xml_data_tallies_t.o: tallies_t.f90 $(xml_fortran_objects)
 	$(F90) $(F90FLAGS) -I xml-fortran -c $< -o $@
 
-#tallies_t.f90: xml-fortran/xmlreader tallies_t.xml
-#$< tallies_t
+tallies_t.f90: xml-fortran/xmlreader tallies_t.xml
+	$< tallies_t
 
 xml_data_materials_t.o: materials_t.f90 $(xml_fortran_objects)
 	$(F90) $(F90FLAGS) -I xml-fortran -c $< -o $@
@@ -25,4 +25,4 @@ xml-fortran/xmlreader $(xml_fortran_objects): xml-fortran/Makefile
 
 clean:
 	cd xml-fortran; make clean
-	rm *.o *.mod xmlreader.out read_write_driver *_validation.xml
+	rm *.o *.mod tallies_t.f90 xmlreader.out read_write_driver *_validation.xml
