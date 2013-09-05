@@ -2,6 +2,18 @@ This repo is a test environment for developing and validating improvements to th
 
 v0/ contains xml-fortran from 'develop' branch of OpenMC
 
-v1/ contains xml-fortran from xml_array_resize branch of Ron's OpenMC fork (optimized memory allocation for number of elements)
+v1/ contains xml-fortran from xml_array_resize branch of Ron's OpenMC fork;
+IMPROVMENTS: array reallocation is handled like a binary tree.  (in v0, array
+reallocation was simply incremented at each step)
 
-v2/ contains optimizations for size of elements
+v2/ contains optimizations for buffer sizes: 
+IMPROVEMENTS:  (a) all improvements from v1; (b) In xmlparse.f90, the line
+buffer is replaced with an iso_varying_string, so it may handle lines of
+arbitrary length.  (c) xmlreader produces parsers in which the data buffer
+(i.e.: the buffer that multiple lines of data between start and end tags)
+handles up to 100K lines (NOTE: this is still static).  (d) In
+read_xml_array.inc, the data buffer (a string which concatenates all the data
+lines in (c)) is an iso_varying_string, so it may handle arbitrary lengths.
+
+v3/ contains optimizations for buffer sizes
+IMPROVEMENTS:  all improvments from v1; and improvements (c) and (d) from v2
