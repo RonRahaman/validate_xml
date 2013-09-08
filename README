@@ -3,8 +3,9 @@ This repo is a test environment for developing and validating improvements to th
 v0/ contains xml-fortran from 'develop' branch of OpenMC
 
 v1/ contains xml-fortran from xml_array_resize branch of Ron's OpenMC fork;
-IMPROVMENTS: array reallocation is handled like a binary tree.  (in v0, array
-reallocation was simply incremented at each step)
+IMPROVMENTS: array reallocation in xml objects (i.e., the types defined in
+geometry_t.f90, tallies_t.f90, etc) is handled like a binary tree.  (in v0,
+array reallocation was simply incremented at each step)
 
 v2/ contains optimizations for buffer sizes: 
 IMPROVEMENTS:  (a) all improvements from v1; (b) In xmlparse.f90, the line
@@ -19,3 +20,9 @@ v3/ contains optimizations for buffer sizes
 IMPROVEMENTS:  all improvments from v1; and improvements (c) and (d) from v2
 Improvment v2(b) was a red herring, as the line length was not a limiting
 factor
+
+v4/ contains optimizations for buffer sizes 
+IMPROVEMENTS: all improvments from v1; improvement (c) from v2.  *** In
+read_xml_array.inc, the variable bufferd is a Fortran 2003 allocatable
+character, which is resized as in a binary tree.  This leads to an astonishing
+performance improvment over iso_varying_string
