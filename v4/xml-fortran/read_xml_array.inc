@@ -19,7 +19,7 @@
    ! The big trick:
    ! A string long enough to hold all data strings
    !
-   character(len=:), pointer                     :: bufferd
+   character(len=:), pointer                     :: bufferd, temp_buff
    integer                                       :: start
 
    !
@@ -34,11 +34,22 @@
          has_var = .true.
       endif
    else
-      allocate(character(len=100000) :: bufferd)
+      allocate(character(len=2) :: bufferd)
       bufferd = ' '
       start   = 1
       do idx = 1,nodata
          if ( data(idx) .ne. ' ' ) then
+
+           do while (start+len(data(idx)) >= len(bufferd))
+
+             allocate(character(len=len(bufferd)*2) :: temp_buff)
+             temp_buff = bufferd
+             deallocate(bufferd)
+             bufferd => temp_buff
+             temp_buff => null()
+
+           enddo
+
             bufferd(start:) = data(idx)
             start           = start + len(data(idx)) + 1
          endif
@@ -47,6 +58,8 @@
       if ( bufferd .ne. ' ' ) then
          has_var = .true.
       endif
+
+      deallocate(bufferd)
    endif
 
    if ( ierr .ne. 0 ) then

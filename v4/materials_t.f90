@@ -985,7 +985,7 @@ subroutine read_xml_file_materials_t(fname, lurep, errout)
    logical                                :: endtag
    character(len=250), dimension(1:2,1:20) :: attribs
    integer                                :: noattribs
-   character(len=1000), dimension(1:1000)  :: data
+   character(len=1000), dimension(1:100000)  :: data
    integer                                :: nodata
 !!!! WRITE LUPROLOG, add_variable, idx7>=1
    type(material_xml), dimension(:), pointer :: temp_material_ => null()
