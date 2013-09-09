@@ -73,15 +73,15 @@ subroutine read_xml_type_density_xml_array( &
    logical, intent(inout)                       :: has_dvar
    integer, intent(inout)                       :: count_dvar
 
-   type(density_xml), dimension(:), pointer :: newvar
+   type(density_xml), dimension(:), pointer :: temp_dvar
 
    count_dvar = count_dvar + 1
    do while (count_dvar .gt. size(dvar))
-       allocate(newvar(1:size(dvar)*2))
-       newvar(1:size(dvar)) = dvar
+       allocate(temp_dvar(1:size(dvar)*2))
+       temp_dvar(1:size(dvar)) = dvar
        deallocate(dvar)
-       dvar => newvar
-       newvar => null()
+       dvar => temp_dvar
+       temp_dvar => null()
    enddo
 
    call read_xml_type_density_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -262,15 +262,15 @@ subroutine read_xml_type_nuclide_xml_array( &
    logical, intent(inout)                       :: has_dvar
    integer, intent(inout)                       :: count_dvar
 
-   type(nuclide_xml), dimension(:), pointer :: newvar
+   type(nuclide_xml), dimension(:), pointer :: temp_dvar
 
    count_dvar = count_dvar + 1
    do while (count_dvar .gt. size(dvar))
-       allocate(newvar(1:size(dvar)*2))
-       newvar(1:size(dvar)) = dvar
+       allocate(temp_dvar(1:size(dvar)*2))
+       temp_dvar(1:size(dvar)) = dvar
        deallocate(dvar)
-       dvar => newvar
-       newvar => null()
+       dvar => temp_dvar
+       temp_dvar => null()
    enddo
 
    call read_xml_type_nuclide_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -481,15 +481,15 @@ subroutine read_xml_type_sab_xml_array( &
    logical, intent(inout)                       :: has_dvar
    integer, intent(inout)                       :: count_dvar
 
-   type(sab_xml), dimension(:), pointer :: newvar
+   type(sab_xml), dimension(:), pointer :: temp_dvar
 
    count_dvar = count_dvar + 1
    do while (count_dvar .gt. size(dvar))
-       allocate(newvar(1:size(dvar)*2))
-       newvar(1:size(dvar)) = dvar
+       allocate(temp_dvar(1:size(dvar)*2))
+       temp_dvar(1:size(dvar)) = dvar
        deallocate(dvar)
-       dvar => newvar
-       newvar => null()
+       dvar => temp_dvar
+       temp_dvar => null()
    enddo
 
    call read_xml_type_sab_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -680,15 +680,15 @@ subroutine read_xml_type_material_xml_array( &
    logical, intent(inout)                       :: has_dvar
    integer, intent(inout)                       :: count_dvar
 
-   type(material_xml), dimension(:), pointer :: newvar
+   type(material_xml), dimension(:), pointer :: temp_dvar
 
    count_dvar = count_dvar + 1
    do while (count_dvar .gt. size(dvar))
-       allocate(newvar(1:size(dvar)*2))
-       newvar(1:size(dvar)) = dvar
+       allocate(temp_dvar(1:size(dvar)*2))
+       temp_dvar(1:size(dvar)) = dvar
        deallocate(dvar)
-       dvar => newvar
-       newvar => null()
+       dvar => temp_dvar
+       temp_dvar => null()
    enddo
 
    call read_xml_type_material_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
