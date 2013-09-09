@@ -6,7 +6,8 @@ F90FLAGS = -cpp -fbacktrace -g
 xml_fortran_objects = xml-fortran/read_xml_primitives.o xml-fortran/write_xml_primitives.o \
   xml-fortran/xmlparse.o
 
-xml_data_t_objects = xml_data_materials_t.o xml_data_tallies_t.o
+xml_data_t_objects = xml_data_cross_sections_t.o xml_data_geometry_t.o xml_data_materials_t.o \
+										 xml_data_plots_t.o xml_data_settings_t.o xml_data_tallies_t.o
 
 read_write_driver:  $(xml_fortran_objects) $(xml_data_t_objects) read_write_driver.f90
 	$(F90) $(F90FLAGS) -J xml-fortran -I xml-fortran $^ -o $@
