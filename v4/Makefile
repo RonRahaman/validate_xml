@@ -2,11 +2,13 @@ VPATH = %.inc xml-fortran
 VPATH = %.mod xml-fortran
 F90 = gfortran
 F90FLAGS = -cpp -fbacktrace -g 
+
 xml_fortran_objects = xml-fortran/read_xml_primitives.o xml-fortran/write_xml_primitives.o \
   xml-fortran/xmlparse.o
 
-read_write_driver:  $(xml_fortran_objects) xml_data_materials_t.o xml_data_tallies_t.o \
-  read_write_driver.f90
+xml_data_t_objects = xml_data_materials_t.o xml_data_tallies_t.o
+
+read_write_driver:  $(xml_fortran_objects) $(xml_data_t_objects) read_write_driver.f90
 	$(F90) $(F90FLAGS) -J xml-fortran -I xml-fortran $^ -o $@
 
 xml_data_%_t.o: %_t.f90 xml-fortran/xmlreader
