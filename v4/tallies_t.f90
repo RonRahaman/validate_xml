@@ -80,13 +80,13 @@ subroutine read_xml_type_mesh_xml_array( &
    type(mesh_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   if (count_dvar .gt. size(dvar)) then
+   do while (count_dvar .gt. size(dvar))
        allocate(newvar(1:size(dvar)*2))
        newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
        newvar => null()
-   endif
+   enddo
 
    call read_xml_type_mesh_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
               dvar(count_dvar), has_dvar )
@@ -359,13 +359,13 @@ subroutine read_xml_type_filter_xml_array( &
    type(filter_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   if (count_dvar .gt. size(dvar)) then
+   do while (count_dvar .gt. size(dvar))
        allocate(newvar(1:size(dvar)*2))
        newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
        newvar => null()
-   endif
+   enddo
 
    call read_xml_type_filter_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
               dvar(count_dvar), has_dvar )
@@ -568,13 +568,13 @@ subroutine read_xml_type_tally_xml_array( &
    type(tally_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   if (count_dvar .gt. size(dvar)) then
+   do while (count_dvar .gt. size(dvar))
        allocate(newvar(1:size(dvar)*2))
        newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
        newvar => null()
-   endif
+   enddo
 
    call read_xml_type_tally_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
               dvar(count_dvar), has_dvar )
@@ -777,6 +777,7 @@ subroutine read_xml_type_tally_xml( info, starttag, endtag, attribs, noattribs, 
    temp_filter = dvar%filter(1:count_filter)
    deallocate(dvar%filter)
    dvar%filter => temp_filter
+   temp_filter => null()
 !!!! WRITE LUEND, add_variable, idx4 <= 0
    if ( .not. has_scores ) then
 !!!! WRITE LUEND, add_variable, idx4<=0, component=true
@@ -803,6 +804,7 @@ subroutine read_xml_type_tally_xml( info, starttag, endtag, attribs, noattribs, 
    temp_filters = dvar%filters(1:count_filters)
    deallocate(dvar%filters)
    dvar%filters => temp_filters
+   temp_filters => null()
 end subroutine read_xml_type_tally_xml
 !!!! WRITE LUDEFLT, open_tmp_files
 !!!! WRITE LUDEFLT, add_typedef
@@ -1000,6 +1002,7 @@ subroutine read_xml_file_tallies_t(fname, lurep, errout)
    temp_mesh_ = mesh_(1:count_mesh_)
    deallocate(mesh_)
    mesh_ => temp_mesh_
+   temp_mesh_ => null()
 !!!! WRITE LUEND, add_variable, idx4 <= 0
    if ( .not. has_tally_ ) then
 !!!! WRITE LUEND, add_variable, idx4<=0, component=false
@@ -1012,6 +1015,7 @@ subroutine read_xml_file_tallies_t(fname, lurep, errout)
    temp_tally_ = tally_(1:count_tally_)
    deallocate(tally_)
    tally_ => temp_tally_
+   temp_tally_ => null()
 !!!! WRITE LUEND, add_variable, idx4 <= 0
    if ( .not. has_separate_ ) then
 !!!! WRITE LUEND, add_variable, idx4<=0, component=false

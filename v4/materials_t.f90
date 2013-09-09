@@ -76,13 +76,13 @@ subroutine read_xml_type_density_xml_array( &
    type(density_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   if (count_dvar .gt. size(dvar)) then
+   do while (count_dvar .gt. size(dvar))
        allocate(newvar(1:size(dvar)*2))
        newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
        newvar => null()
-   endif
+   enddo
 
    call read_xml_type_density_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
               dvar(count_dvar), has_dvar )
@@ -265,13 +265,13 @@ subroutine read_xml_type_nuclide_xml_array( &
    type(nuclide_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   if (count_dvar .gt. size(dvar)) then
+   do while (count_dvar .gt. size(dvar))
        allocate(newvar(1:size(dvar)*2))
        newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
        newvar => null()
-   endif
+   enddo
 
    call read_xml_type_nuclide_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
               dvar(count_dvar), has_dvar )
@@ -484,13 +484,13 @@ subroutine read_xml_type_sab_xml_array( &
    type(sab_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   if (count_dvar .gt. size(dvar)) then
+   do while (count_dvar .gt. size(dvar))
        allocate(newvar(1:size(dvar)*2))
        newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
        newvar => null()
-   endif
+   enddo
 
    call read_xml_type_sab_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
               dvar(count_dvar), has_dvar )
@@ -683,13 +683,13 @@ subroutine read_xml_type_material_xml_array( &
    type(material_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   if (count_dvar .gt. size(dvar)) then
+   do while (count_dvar .gt. size(dvar))
        allocate(newvar(1:size(dvar)*2))
        newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
        newvar => null()
-   endif
+   enddo
 
    call read_xml_type_material_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
               dvar(count_dvar), has_dvar )
@@ -884,6 +884,7 @@ subroutine read_xml_type_material_xml( info, starttag, endtag, attribs, noattrib
    temp_nuclides = dvar%nuclides(1:count_nuclides)
    deallocate(dvar%nuclides)
    dvar%nuclides => temp_nuclides
+   temp_nuclides => null()
 !!!! WRITE LUEND, add_variable, idx4 <= 0
    if ( .not. has_elements ) then
 !!!! WRITE LUEND, add_variable, idx4<=0, component=true
@@ -896,6 +897,7 @@ subroutine read_xml_type_material_xml( info, starttag, endtag, attribs, noattrib
    temp_elements = dvar%elements(1:count_elements)
    deallocate(dvar%elements)
    dvar%elements => temp_elements
+   temp_elements => null()
 !!!! WRITE LUEND, add_variable, idx4 <= 0
    if ( .not. has_sab ) then
 !!!! WRITE LUEND, add_variable, idx4<=0, component=true
@@ -908,6 +910,7 @@ subroutine read_xml_type_material_xml( info, starttag, endtag, attribs, noattrib
    temp_sab = dvar%sab(1:count_sab)
    deallocate(dvar%sab)
    dvar%sab => temp_sab
+   temp_sab => null()
 end subroutine read_xml_type_material_xml
 !!!! WRITE LUDEFLT, open_tmp_files
 !!!! WRITE LUDEFLT, add_typedef
@@ -1079,6 +1082,7 @@ subroutine read_xml_file_materials_t(fname, lurep, errout)
    temp_material_ = material_(1:count_material_)
    deallocate(material_)
    material_ => temp_material_
+   temp_material_ => null()
 !!!! WRITE LUEND, add_variable, idx4 <= 0
    if ( .not. has_default_xs_ ) then
 !!!! WRITE LUEND, add_variable, idx4<=0, component=false

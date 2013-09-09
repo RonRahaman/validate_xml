@@ -999,7 +999,8 @@ subroutine add_variable( component )
                 '   allocate(temp_'//trim(varname)//'(1:count_'//trim(varname)//'))', &
                 '   temp_'//trim(varname)//' = '//trim(varcomp)//'(1:count_'//trim(varname)//')', &
                 '   deallocate('//trim(varcomp)//')', &
-                '   '//trim(varcomp)//' => temp_'//trim(varname)
+                '   '//trim(varcomp)//' => temp_'//trim(varname), &
+                '   temp_'//trim(varname)//' => null() '
         endif
 !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1091,13 +1092,13 @@ subroutine add_typedef( dyn_strings )
   &   '   type('//trim(typename)//'), dimension(:), pointer :: newvar',&
   &   '   '                                                          ,&
   &   '   count_dvar = count_dvar + 1',&
-  &   '   if (count_dvar .gt. size(dvar)) then',&
+  &   '   do while (count_dvar .gt. size(dvar))',&
   &   '       allocate(newvar(1:size(dvar)*2))',&
   &   '       newvar(1:size(dvar)) = dvar',&
   &   '       deallocate(dvar)',&
   &   '       dvar => newvar',&
   &   '       newvar => null()',&
-  &   '   endif',&
+  &   '   enddo',&
   &   '   '                                                          ,&
   &   '   call read_xml_type_'//trim(typename)// &
   &         '( info, tag, endtag, attribs, noattribs, data, nodata, &',&
