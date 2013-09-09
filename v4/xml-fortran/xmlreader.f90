@@ -872,7 +872,7 @@ subroutine add_variable( component )
       if ( index( declare, "pointer" ) > 0 ) then
          initptr = " => null()"
       else
-         initptr = ""
+         initptr = ''
       endif
 
       k = index( declare, 'SHAPE' )
@@ -1037,9 +1037,16 @@ subroutine add_variable( component )
          endif
       else
          write( luwrv, '(a)') '!!!! WRITE LUWRV, add_variable, component=false'
-         write( luwrv,   '(4a)' ) &
-         &'   call '//trim(types(4,idx3))//'(', &
-         &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
+         if (index( declare, "pointer" ) > 0) then
+           write( luwrv,   '(5a)' ) &
+           &'   if(associated('//trim(varname)//'))', &
+           &'   call '//trim(types(4,idx3))//'(', &
+           &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
+         else
+           write( luwrv,   '(4a)' ) &
+           &'   call '//trim(types(4,idx3))//'(', &
+           &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
+         endif
       endif
    endif
 
