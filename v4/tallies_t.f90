@@ -77,18 +77,15 @@ subroutine read_xml_type_mesh_xml_array( &
    logical, intent(inout)                       :: has_dvar
    integer, intent(inout)                       :: count_dvar
 
-   integer                                      :: newsize
-   integer                                      :: size_dvar
    type(mesh_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   size_dvar = size(dvar)
-   if (count_dvar .gt. size_dvar) then
-       newsize = size_dvar * 2
-       allocate(newvar(1:newsize))
-       newvar(1:size_dvar) = dvar
+   if (count_dvar .gt. size(dvar)) then
+       allocate(newvar(1:size(dvar)*2))
+       newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
+       newvar => null()
    endif
 
    call read_xml_type_mesh_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -359,18 +356,15 @@ subroutine read_xml_type_filter_xml_array( &
    logical, intent(inout)                       :: has_dvar
    integer, intent(inout)                       :: count_dvar
 
-   integer                                      :: newsize
-   integer                                      :: size_dvar
    type(filter_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   size_dvar = size(dvar)
-   if (count_dvar .gt. size_dvar) then
-       newsize = size_dvar * 2
-       allocate(newvar(1:newsize))
-       newvar(1:size_dvar) = dvar
+   if (count_dvar .gt. size(dvar)) then
+       allocate(newvar(1:size(dvar)*2))
+       newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
+       newvar => null()
    endif
 
    call read_xml_type_filter_xml( info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -571,18 +565,15 @@ subroutine read_xml_type_tally_xml_array( &
    logical, intent(inout)                       :: has_dvar
    integer, intent(inout)                       :: count_dvar
 
-   integer                                      :: newsize
-   integer                                      :: size_dvar
    type(tally_xml), dimension(:), pointer :: newvar
 
    count_dvar = count_dvar + 1
-   size_dvar = size(dvar)
-   if (count_dvar .gt. size_dvar) then
-       newsize = size_dvar * 2
-       allocate(newvar(1:newsize))
-       newvar(1:size_dvar) = dvar
+   if (count_dvar .gt. size(dvar)) then
+       allocate(newvar(1:size(dvar)*2))
+       newvar(1:size(dvar)) = dvar
        deallocate(dvar)
        dvar => newvar
+       newvar => null()
    endif
 
    call read_xml_type_tally_xml( info, tag, endtag, attribs, noattribs, data, nodata, &

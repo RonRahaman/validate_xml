@@ -1088,18 +1088,15 @@ subroutine add_typedef( dyn_strings )
   &   '   logical, intent(inout)                       :: has_dvar  ',&
   &   '   integer, intent(inout)                       :: count_dvar',&
   &   '   '                                                          ,&
-  &   '   integer                                      :: newsize   ',&
-  &   '   integer                                      :: size_dvar ',&
   &   '   type('//trim(typename)//'), dimension(:), pointer :: newvar',&
   &   '   '                                                          ,&
   &   '   count_dvar = count_dvar + 1',&
-  &   '   size_dvar = size(dvar)',&
-  &   '   if (count_dvar .gt. size_dvar) then',&
-  &   '       newsize = size_dvar * 2',&
-  &   '       allocate(newvar(1:newsize))',&
-  &   '       newvar(1:size_dvar) = dvar',&
+  &   '   if (count_dvar .gt. size(dvar)) then',&
+  &   '       allocate(newvar(1:size(dvar)*2))',&
+  &   '       newvar(1:size(dvar)) = dvar',&
   &   '       deallocate(dvar)',&
   &   '       dvar => newvar',&
+  &   '       newvar => null()',&
   &   '   endif',&
   &   '   '                                                          ,&
   &   '   call read_xml_type_'//trim(typename)// &
