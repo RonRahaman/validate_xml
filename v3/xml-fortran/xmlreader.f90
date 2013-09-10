@@ -872,7 +872,7 @@ subroutine add_variable( component )
       if ( index( declare, "pointer" ) > 0 ) then
          initptr = " => null()"
       else
-         initptr = ""
+         initptr = ''
       endif
 
       k = index( declare, 'SHAPE' )
@@ -999,7 +999,8 @@ subroutine add_variable( component )
                 '   allocate(temp_'//trim(varname)//'(1:count_'//trim(varname)//'))', &
                 '   temp_'//trim(varname)//' = '//trim(varcomp)//'(1:count_'//trim(varname)//')', &
                 '   deallocate('//trim(varcomp)//')', &
-                '   '//trim(varcomp)//' => temp_'//trim(varname)
+                '   '//trim(varcomp)//' => temp_'//trim(varname), &
+                '   temp_'//trim(varname)//' => null() '
         endif
 !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1024,14 +1025,28 @@ subroutine add_variable( component )
       !
       if ( component ) then
          write( luwrite, '(a)') '!!!! WRITE LUWRITE, add_variable, component=true'
-         write( luwrite,   '(4a)' ) &
-         &'   call '//trim(types(4,idx3))//'(', &
-         &' info, '''//trim(vartag)//''', indent+3, dvar%', trim(varname), ')'
+         if (index( declare, "pointer" ) > 0) then
+           write( luwrite,   '(5a)' ) &
+           &'   if(associated(dvar%'//trim(varname)//'))', &
+           &' call '//trim(types(4,idx3))//'(', &
+           &' info, '''//trim(vartag)//''', indent+3, dvar%', trim(varname), ')'
+         else
+           write( luwrite,   '(4a)' ) &
+           &'   call '//trim(types(4,idx3))//'(', &
+           &' info, '''//trim(vartag)//''', indent+3, dvar%', trim(varname), ')'
+         endif
       else
          write( luwrv, '(a)') '!!!! WRITE LUWRV, add_variable, component=false'
-         write( luwrv,   '(4a)' ) &
-         &'   call '//trim(types(4,idx3))//'(', &
-         &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
+         if (index( declare, "pointer" ) > 0) then
+           write( luwrv,   '(5a)' ) &
+           &'   if(associated('//trim(varname)//'))', &
+           &'   call '//trim(types(4,idx3))//'(', &
+           &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
+         else
+           write( luwrv,   '(4a)' ) &
+           &'   call '//trim(types(4,idx3))//'(', &
+           &' info, '''//trim(vartag)//''', indent+3, ', trim(varname), ')'
+         endif
       endif
    endif
 
@@ -1088,19 +1103,16 @@ subroutine add_typedef( dyn_strings )
   &   '   logical, intent(inout)                       :: has_dvar  ',&
   &   '   integer, intent(inout)                       :: count_dvar',&
   &   '   '                                                          ,&
-  &   '   integer                                      :: newsize   ',&
-  &   '   integer                                      :: size_dvar ',&
-  &   '   type('//trim(typename)//'), dimension(:), pointer :: newvar',&
+  &   '   type('//trim(typename)//'), dimension(:), pointer :: temp_dvar',&
   &   '   '                                                          ,&
   &   '   count_dvar = count_dvar + 1',&
-  &   '   size_dvar = size(dvar)',&
-  &   '   if (count_dvar .gt. size_dvar) then',&
-  &   '       newsize = size_dvar * 2',&
-  &   '       allocate(newvar(1:newsize))',&
-  &   '       newvar(1:size_dvar) = dvar',&
+  &   '   do while (count_dvar .gt. size(dvar))',&
+  &   '       allocate(temp_dvar(1:size(dvar)*2))',&
+  &   '       temp_dvar(1:size(dvar)) = dvar',&
   &   '       deallocate(dvar)',&
-  &   '       dvar => newvar',&
-  &   '   endif',&
+  &   '       dvar => temp_dvar',&
+  &   '       temp_dvar => null()',&
+  &   '   enddo',&
   &   '   '                                                          ,&
   &   '   call read_xml_type_'//trim(typename)// &
   &         '( info, tag, endtag, attribs, noattribs, data, nodata, &',&

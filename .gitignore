@@ -10,5 +10,4 @@ xmlreader.out
 */*_validation.xml
 */tags
 */*.dSYM
-*.xml
 .DS_Store

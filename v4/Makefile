@@ -1,7 +1,7 @@
 VPATH = %.inc xml-fortran
 VPATH = %.mod xml-fortran
 F90 = gfortran
-F90FLAGS = -fcheck=all -g 
+F90FLAGS = -g 
 
 xml_fortran_objects = xml-fortran/read_xml_primitives.o xml-fortran/write_xml_primitives.o \
   xml-fortran/xmlparse.o
